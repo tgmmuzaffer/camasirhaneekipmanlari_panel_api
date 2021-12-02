@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -6,11 +7,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using panelApi.RepoExtension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace panelApi
@@ -35,6 +38,28 @@ namespace panelApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "panelApi", Version = "v1" });
             });
+            var appsettingssection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appsettingssection);
+            var appsettings = appsettingssection.Get<AppSettings>();
+            var key = Encoding.ASCII.GetBytes(appsettings.Secret);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+             .AddJwtBearer(z =>
+             {
+                 z.RequireHttpsMetadata = false;
+                 z.SaveToken = true;
+                 z.TokenValidationParameters = new TokenValidationParameters
+                 {
+                     ValidateIssuerSigningKey = true,
+                     IssuerSigningKey = new SymmetricSecurityKey(key),
+                     ValidateIssuer = false,
+                     ValidateAudience = false //https://www.udemy.com/course/quick-introduction-to-aspnet-mvc-core-20/learn/lecture/18078953#overview
+                     //deployda patlayabilir
+                 };
+             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,7 +75,8 @@ namespace panelApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

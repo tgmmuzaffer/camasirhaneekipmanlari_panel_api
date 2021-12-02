@@ -20,6 +20,7 @@ namespace panelApi.RepoExtension
         }
         public static void ConfigureServices(this IServiceCollection services)
         {
+            services.AddScoped<IUserRepo, UserRepo>();
             services.AddScoped<IPropertyTabRepo, PropertyTabRepo>();
         }
     }

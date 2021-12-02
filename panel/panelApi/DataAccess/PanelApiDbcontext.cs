@@ -9,6 +9,8 @@ namespace panelApi.DataAccess
         {
 
         }
+
+        public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<PropertyTab> PropertyTabs { get; set; }
     }
 }
