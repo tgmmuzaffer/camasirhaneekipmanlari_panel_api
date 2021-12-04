@@ -21,7 +21,7 @@ namespace panelApi.Repository
         }
         public User Authenticate(string mail, string password)
         {
-            var user=_panelApiDbcontext.Users.FirstOrDefault(x=>x.UserName==mail && x.Password==password);
+            var user = _panelApiDbcontext.Users.FirstOrDefault(x => x.UserName == mail && x.Password == password);
             if (user == null)
             {
                 return null;
@@ -32,24 +32,40 @@ namespace panelApi.Repository
             {
                 Subject = new System.Security.Claims.ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString())
+                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.Role)
                 }),
                 Expires = System.DateTime.Now.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
-            var token= tokenhandler.CreateToken(tokendescriptor);
+            var token = tokenhandler.CreateToken(tokendescriptor);
             user.Token = tokenhandler.WriteToken(token);
+            user.Password = string.Empty;
             return user;
         }
 
         public bool IsUnique(string mail)
         {
-            throw new System.NotImplementedException();
+            var user = _panelApiDbcontext.Users.FirstOrDefault(a => a.UserName == mail);
+            if (user == null)
+            {
+                return true;
+            }
+            return false;
         }
 
-        public User Register(string mail, string password)
+        public User Register(string mail, string password, string role=null)
         {
-            throw new System.NotImplementedException();
+            User user = new User
+            {
+                UserName = mail,
+                Password = password,
+                Role=role
+            };
+            _panelApiDbcontext.Users.Add(user);
+            _panelApiDbcontext.SaveChanges();
+            user.Password = string.Empty;
+            return user;
         }
     }
 }

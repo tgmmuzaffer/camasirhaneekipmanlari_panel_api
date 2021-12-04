@@ -13,6 +13,6 @@ namespace panelApi.Repository.IRepository
         Task<T> Create(T entity);
         Task<bool> Update(T entity);
         Task<bool> Delete(T entity);
-        Task<bool> IsExist(Expression<Func<PropertyTab, bool>> filter = null);
+        Task<bool> IsExist(Expression<Func<T, bool>> filter = null);
     }
 }

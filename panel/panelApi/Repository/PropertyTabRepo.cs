@@ -34,13 +34,13 @@ namespace panelApi.Repository
 
         public async Task<PropertyTab> Get(Expression<Func<PropertyTab, bool>> filter = null)
         {
-            var result = filter == null ? await _panelApiDbcontext.PropertyTabs.Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.PropertyTabs.FirstOrDefaultAsync();
+            var result = filter != null ? await _panelApiDbcontext.PropertyTabs.Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.PropertyTabs.FirstOrDefaultAsync();
             return result;
         }
 
         public async Task<ICollection<PropertyTab>> GetList(Expression<Func<PropertyTab, bool>> filter = null)
         {
-            var result = filter == null ? await _panelApiDbcontext.PropertyTabs.Where(filter).ToListAsync() : await _panelApiDbcontext.PropertyTabs.ToListAsync();
+            var result = filter != null ? await _panelApiDbcontext.PropertyTabs.Where(filter).ToListAsync() : await _panelApiDbcontext.PropertyTabs.ToListAsync();
             return result;
         }
 

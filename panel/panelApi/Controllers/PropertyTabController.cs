@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
@@ -19,10 +20,12 @@ namespace panelApi.Controllers
             _propertyTab = propertyTab;
         }
 
+        
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(PropertyTab))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize]
         [Route("CreateProperty")]
         public async Task<IActionResult> CreateProperty([FromBody] PropertyTab propertyTab)
         {
@@ -41,12 +44,13 @@ namespace panelApi.Controllers
             return CreatedAtRoute(nameof(GetProperty), new { propertyId = result.Id }, result);
         }
 
+        [AllowAnonymous]
         [HttpGet("{propertyId:int}", Name = "GetProperty")]
         [ProducesResponseType(200, Type = typeof(PropertyTab))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetProperty(int propertyId)
+        public async Task<IActionResult> GetProperty(int propertyId)
         {
-            var result = _propertyTab.Get(a => a.Id == propertyId);
+            var result =await _propertyTab.Get(a => a.Id == propertyId);
             if (result == null)
             {
                 ModelState.AddModelError("", "Property not found");
@@ -55,13 +59,14 @@ namespace panelApi.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(PropertyTab))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Route("GetAllProperties")]
-        public IActionResult GetAllProperties()
+        public async Task<IActionResult> GetAllProperties()
         {
-            var result = _propertyTab.GetList();
+            var result =await _propertyTab.GetList();
             if (result == null)
             {
                 ModelState.AddModelError("", "Property not found");
@@ -70,6 +75,7 @@ namespace panelApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -92,6 +98,7 @@ namespace panelApi.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
