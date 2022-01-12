@@ -16,10 +16,11 @@ namespace panelApi.RepoExtension
         public static void ConfigureSqlServer(this IServiceCollection services, IConfiguration configuration)
         {
             string connectionString = configuration["ConnectionStrings:PanelApiConnection"];
-            services.AddDbContext<PanelApiDbcontext>(options => options.UseSqlServer(connectionString));
+            services.AddDbContext<PanelApiDbcontext>(options => options.UseSqlServer(connectionString).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
         }
         public static void ConfigureServices(this IServiceCollection services)
         {
+            services.AddScoped<IRoleRepo, RoleRepo>();
             services.AddScoped<IUserRepo, UserRepo>();
             services.AddScoped<IPropertyTabRepo, PropertyTabRepo>();
         }

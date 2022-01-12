@@ -26,7 +26,7 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize]
-        [Route("CreateProperty")]
+        [Route("createProperty")]
         public async Task<IActionResult> CreateProperty([FromBody] PropertyTab propertyTab)
         {
             var isexist = await _propertyTab.IsExist(a => a.Name == propertyTab.Name);
@@ -45,7 +45,7 @@ namespace panelApi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("{propertyId:int}", Name = "GetProperty")]
+        [HttpGet("{propertyId:int}", Name = "getProperty")]
         [ProducesResponseType(200, Type = typeof(PropertyTab))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetProperty(int propertyId)
@@ -63,11 +63,11 @@ namespace panelApi.Controllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(PropertyTab))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Route("GetAllProperties")]
+        [Route("getAllProperties")]
         public async Task<IActionResult> GetAllProperties()
         {
             var result =await _propertyTab.GetList();
-            if (result == null)
+            if (result.Count<0)
             {
                 ModelState.AddModelError("", "Property not found");
                 return StatusCode(404, ModelState);
@@ -80,7 +80,7 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Route("UpdateProperty")]
+        [Route("updateProperty")]
         public async Task<IActionResult> UpdateProperty([FromBody] PropertyTab propertyTab)
         {
             var isexist = await _propertyTab.IsExist(a => a.Id == propertyTab.Id);
@@ -103,7 +103,7 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Route("DeleteProperty")]
+        [Route("deleteProperty")]
         public async Task<IActionResult> DeleteProperty(int Id)
         {
             var property =await _propertyTab.Get(a => a.Id == Id);
