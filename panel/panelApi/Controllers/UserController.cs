@@ -20,6 +20,7 @@ namespace panelApi.Controllers
             _userRepo = userRepo;
             _roleRepo = roleRepo;
         }
+
         [AllowAnonymous]
         [HttpPost]
         [Route("authenticate")]
@@ -59,12 +60,12 @@ namespace panelApi.Controllers
             if (!isexist)
                 return BadRequest(new { message = "UserName or Password already using" });
             
-            var userdata = _userRepo.Register(user);
+            var userdata =await _userRepo.Register(user);
             if (userdata == null)
             {
                 return BadRequest(new { message = "Something went wrong! Try Again" });
             }
-            return Ok(userdata);
+            return Ok(userdata.Id);
         }
 
 
@@ -165,7 +166,7 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "user could not deleted");
                 return StatusCode(500, ModelState);
             }
-            return Ok();
+            return NoContent();
         }
     }
 }

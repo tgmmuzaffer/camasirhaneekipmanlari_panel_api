@@ -9,8 +9,8 @@ using panelApi.DataAccess;
 namespace panelApi.Migrations
 {
     [DbContext(typeof(PanelApiDbcontext))]
-    [Migration("20220112205228_updateUser")]
-    partial class updateUser
+    [Migration("20220112224401_Otherentities")]
+    partial class Otherentities
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -27,11 +27,11 @@ namespace panelApi.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductPropertyId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

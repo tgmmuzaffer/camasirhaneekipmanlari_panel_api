@@ -2,7 +2,7 @@
 
 namespace panelApi.Repository.IRepository
 {
-    public interface IPropertyTabRepo: IBaseRepo<PropertyTab>
+    public interface IPropertyDesRepo: IBaseRepo<PropertyDescription>
     {
     }
 }

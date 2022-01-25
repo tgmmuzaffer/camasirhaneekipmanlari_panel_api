@@ -10,50 +10,51 @@ using System.Threading.Tasks;
 
 namespace panelApi.Controllers
 {
-    [Route("api/propertytab")]
+    [Route("api/propertyDesc")]
     [ApiController]
-    public class PropertyTabController : ControllerBase
+    public class PropertyDescController : ControllerBase
     {
-        private readonly IPropertyTabRepo _propertyTab;
-        public PropertyTabController(IPropertyTabRepo propertyTab)
+        private readonly IPropertyDesRepo _propertyDesc;
+        public PropertyDescController(IPropertyDesRepo propertyDesc)
         {
-            _propertyTab = propertyTab;
+            _propertyDesc = propertyDesc;
         }
 
         
         [HttpPost]
-        [ProducesResponseType(201, Type = typeof(PropertyTab))]
+        [ProducesResponseType(201, Type = typeof(PropertyDescription))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize]
-        [Route("createProperty")]
-        public async Task<IActionResult> CreateProperty([FromBody] PropertyTab propertyTab)
+        [Route("createPropertyDesc")]
+        public async Task<IActionResult> CreatePropertyDesc([FromBody] PropertyDescription propertyDesc)
         {
-            var isexist = await _propertyTab.IsExist(a => a.Name == propertyTab.Name);
+            var isexist = await _propertyDesc.IsExist(a => a.Name == propertyDesc.Name);
             if (isexist)
             {
-                ModelState.AddModelError("", "Property already exist");
+                ModelState.AddModelError("", "PropertyDesc already exist");
                 return StatusCode(404, ModelState);
             }
-            var result = await _propertyTab.Create(propertyTab);
+            var result = await _propertyDesc.Create(propertyDesc);
             if (result == null)
             {
-                ModelState.AddModelError("", "Property could not created");
+                ModelState.AddModelError("", "PropertyDesc could not created");
                 return StatusCode(500, ModelState);
             }
-            return CreatedAtRoute(nameof(GetProperty), new { propertyId = result.Id }, result);
+            return Ok(propertyDesc.Id);
         }
 
         [AllowAnonymous]
-        [HttpGet("{propertyId:int}", Name = "getProperty")]
-        [ProducesResponseType(200, Type = typeof(PropertyTab))]
+        [HttpGet()]
+        [ProducesResponseType(200, Type = typeof(PropertyDescription))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetProperty(int propertyId)
+        [Route("getPropertyDesc/{Id}")]
+        public async Task<IActionResult> GetPropertyDesc(int Id)
         {
-            var result =await _propertyTab.Get(a => a.Id == propertyId);
+            var result =await _propertyDesc.Get(a => a.Id == Id);
             if (result == null)
             {
-                ModelState.AddModelError("", "Property not found");
+                ModelState.AddModelError("", "PropertyDesc not found");
                 return StatusCode(404, ModelState);
             }
             return Ok(result);
@@ -61,15 +62,15 @@ namespace panelApi.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(PropertyTab))]
+        [ProducesResponseType(200, Type = typeof(PropertyDescription))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Route("getAllProperties")]
-        public async Task<IActionResult> GetAllProperties()
+        [Route("getAllPropertyDescs")]
+        public async Task<IActionResult> GetAllPropertyDescs()
         {
-            var result =await _propertyTab.GetList();
+            var result =await _propertyDesc.GetList();
             if (result.Count<0)
             {
-                ModelState.AddModelError("", "Property not found");
+                ModelState.AddModelError("", "PropertyDesc not found");
                 return StatusCode(404, ModelState);
             }
             return Ok(result);
@@ -80,19 +81,19 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Route("updateProperty")]
-        public async Task<IActionResult> UpdateProperty([FromBody] PropertyTab propertyTab)
+        [Route("updatePropertyDesc")]
+        public async Task<IActionResult> UpdateProperty([FromBody] PropertyDescription propertyDesc)
         {
-            var isexist = await _propertyTab.IsExist(a => a.Id == propertyTab.Id);
+            var isexist = await _propertyDesc.IsExist(a => a.Id == propertyDesc.Id);
             if (!isexist)
             {
-                ModelState.AddModelError("", "Property not found");
+                ModelState.AddModelError("", "PropertyDesc not found");
                 return StatusCode(404, ModelState);
             }
-            var result =await _propertyTab.Update(propertyTab);
+            var result =await _propertyDesc.Update(propertyDesc);
             if (!result)
             {
-                ModelState.AddModelError("", "Property could not updated");
+                ModelState.AddModelError("", "PropertyDesc could not updated");
                 return StatusCode(500, ModelState);
             }
             return NoContent();
@@ -103,20 +104,20 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Route("deleteProperty")]
+        [Route("deletePropertyDesc/{Id}")]
         public async Task<IActionResult> DeleteProperty(int Id)
         {
-            var property =await _propertyTab.Get(a => a.Id == Id);
+            var property =await _propertyDesc.Get(a => a.Id == Id);
             if (property==null)
             {
-                ModelState.AddModelError("", "Property not found");
+                ModelState.AddModelError("", "PropertyDesc not found");
                 return StatusCode(404, ModelState);
             }
 
-            var result =await _propertyTab.Delete(property);
+            var result =await _propertyDesc.Delete(property);
             if (!result)
             {
-                ModelState.AddModelError("", "property could not deleted");
+                ModelState.AddModelError("", "PropertyDesc could not deleted");
                 return StatusCode(500, ModelState);
             }
             return NoContent();

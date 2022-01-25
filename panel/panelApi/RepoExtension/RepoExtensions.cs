@@ -22,7 +22,12 @@ namespace panelApi.RepoExtension
         {
             services.AddScoped<IRoleRepo, RoleRepo>();
             services.AddScoped<IUserRepo, UserRepo>();
-            services.AddScoped<IPropertyTabRepo, PropertyTabRepo>();
+            services.AddScoped<IProductRepo, ProductRepo>();
+            services.AddScoped<ICategoryRepo, CategoryRepo>();
+            services.AddScoped<IProductPropertyRepo, ProductPropertyRepo>();
+            services.AddScoped<IPropertyDesRepo, PropertyDescRepo>();
+            services.AddScoped<IPropertyCategoryRepo, PropertyCategoryRepo>();
+
         }
     }
 }

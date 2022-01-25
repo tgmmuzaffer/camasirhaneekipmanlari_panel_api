@@ -21,7 +21,7 @@ namespace panelApi.Migrations
                 .HasAnnotation("ProductVersion", "5.0.12")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("panelApi.Models.PropertyTab", b =>
+            modelBuilder.Entity("panelApi.Models.PropertyDescription", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
