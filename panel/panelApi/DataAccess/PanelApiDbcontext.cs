@@ -17,5 +17,7 @@ namespace panelApi.DataAccess
         public virtual DbSet<ProductProperty> ProductProperties { get; set; }
         public virtual DbSet<PropertyDescription> PropertyDescriptions { get; set; }
         public virtual DbSet<PropertyCategory> PropertyCategories { get; set; }
+        public virtual DbSet<Contact> Contacts { get; set; }
+        public virtual DbSet<Tag> Tags { get; set; }
     }
 }
