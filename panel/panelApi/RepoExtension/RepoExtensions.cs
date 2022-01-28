@@ -31,6 +31,7 @@ namespace panelApi.RepoExtension
             services.AddScoped<ITagRepo, TagRepo>();
             services.AddScoped<IBlogRepo, BlogRepo>();
             services.AddScoped<IBlogTagRepo, BlogTagRepo>();
+            services.AddScoped<ISliderRepo, SliderRepo>();
 
         }
     }
