@@ -10,18 +10,18 @@ using System.Threading.Tasks;
 
 namespace panelApi.Repository
 {
-    public class CategoryRepo : ICategoryRepo
+    public class BlogRepo : IBlogRepo
     {
         private readonly PanelApiDbcontext _panelApiDbcontext;
-        public CategoryRepo(PanelApiDbcontext panelApiDbcontext)
+        public BlogRepo(PanelApiDbcontext panelApiDbcontext)
         {
             _panelApiDbcontext = panelApiDbcontext;
         }
-        public async Task<Category> Create(Category entity)
+        public async Task<Blog> Create(Blog entity)
         {
             try
             {
-                _panelApiDbcontext.Categories.Add(entity);
+                _panelApiDbcontext.Blogs.Add(entity);
                 await _panelApiDbcontext.SaveChangesAsync();
                 return entity;
             }
@@ -31,11 +31,11 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<bool> Delete(Category entity)
+        public async Task<bool> Delete(Blog entity)
         {
             try
             {
-                _panelApiDbcontext.Categories.Remove(entity);
+                _panelApiDbcontext.Blogs.Remove(entity);
                 await _panelApiDbcontext.SaveChangesAsync();
                 return true;
             }
@@ -45,11 +45,11 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<Category> Get(Expression<Func<Category, bool>> filter = null)
+        public async Task<Blog> Get(Expression<Func<Blog, bool>> filter = null)
         {
             try
             {
-                var result = filter != null ? await _panelApiDbcontext.Categories.Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.Categories.FirstOrDefaultAsync();
+                var result = filter != null ? await _panelApiDbcontext.Blogs.Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.Blogs.FirstOrDefaultAsync();
                 return result;
             }
             catch (Exception e)
@@ -58,11 +58,11 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<Category>> GetList(Expression<Func<Category, bool>> filter = null)
+        public async Task<ICollection<Blog>> GetList(Expression<Func<Blog, bool>> filter = null)
         {
             try
             {
-                var result = filter != null ? await _panelApiDbcontext.Categories.Where(filter).ToListAsync() : await _panelApiDbcontext.Categories.ToListAsync();
+                var result = filter != null ? await _panelApiDbcontext.Blogs.Where(filter).ToListAsync() : await _panelApiDbcontext.Blogs.ToListAsync();
                 return result;
             }
             catch (Exception e)
@@ -71,24 +71,26 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<bool> IsExist(Expression<Func<Category, bool>> filter = null)
+        public async Task<bool> IsExist(Expression<Func<Blog, bool>> filter = null)
         {
             try
             {
-                var result = await _panelApiDbcontext.Categories.AnyAsync(filter);
+                var result = await _panelApiDbcontext.Blogs.AnyAsync(filter);
                 return result;
             }
             catch (Exception e)
             {
+
                 throw new Exception(e.Message);
             }
+
         }
 
-        public async Task<bool> Update(Category entity)
+        public async Task<bool> Update(Blog entity)
         {
             try
             {
-                _panelApiDbcontext.Categories.Update(entity);
+                _panelApiDbcontext.Blogs.Update(entity);
                 await _panelApiDbcontext.SaveChangesAsync();
                 return true;
             }

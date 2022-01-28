@@ -29,6 +29,8 @@ namespace panelApi.RepoExtension
             services.AddScoped<IPropertyCategoryRepo, PropertyCategoryRepo>();
             services.AddScoped<IContactRepo, ContactRepo>();
             services.AddScoped<ITagRepo, TagRepo>();
+            services.AddScoped<IBlogRepo, BlogRepo>();
+            services.AddScoped<IBlogTagRepo, BlogTagRepo>();
 
         }
     }

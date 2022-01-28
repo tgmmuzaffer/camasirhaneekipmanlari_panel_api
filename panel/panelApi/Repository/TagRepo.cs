@@ -19,41 +19,84 @@ namespace panelApi.Repository
         }
         public async Task<Tag> Create(Tag entity)
         {
-            _panelApiDbcontext.Tags.Add(entity);
-            await _panelApiDbcontext.SaveChangesAsync();
-            return entity;
+            try
+            {
+                _panelApiDbcontext.Tags.Add(entity);
+                await _panelApiDbcontext.SaveChangesAsync();
+                return entity;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         public async Task<bool> Delete(Tag entity)
         {
-            _panelApiDbcontext.Tags.Remove(entity);
-            await _panelApiDbcontext.SaveChangesAsync();
-            return true;
+            try
+            {
+                _panelApiDbcontext.Tags.Remove(entity);
+                await _panelApiDbcontext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         public async Task<Tag> Get(Expression<Func<Tag, bool>> filter = null)
         {
-            var result = filter != null ? await _panelApiDbcontext.Tags.Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.Tags.FirstOrDefaultAsync();
-            return result;
+            try
+            {
+                var result = filter != null ? await _panelApiDbcontext.Tags.Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.Tags.FirstOrDefaultAsync();
+                return result;
+            }
+            catch (Exception e)
+            {
+
+                throw new Exception(e.Message);
+            }
         }
 
         public async Task<ICollection<Tag>> GetList(Expression<Func<Tag, bool>> filter = null)
         {
-            var result = filter != null ? await _panelApiDbcontext.Tags.Where(filter).ToListAsync() : await _panelApiDbcontext.Tags.ToListAsync();
-            return result;
+            try
+            {
+                var result = filter != null ? await _panelApiDbcontext.Tags.Where(filter).ToListAsync() : await _panelApiDbcontext.Tags.ToListAsync();
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         public async Task<bool> IsExist(Expression<Func<Tag, bool>> filter = null)
         {
-            var result = await _panelApiDbcontext.Tags.AnyAsync(filter);
-            return result;
+            try
+            {
+                var result = await _panelApiDbcontext.Tags.AnyAsync(filter);
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         public async Task<bool> Update(Tag entity)
         {
-            _panelApiDbcontext.Tags.Update(entity);
-            await _panelApiDbcontext.SaveChangesAsync();
-            return true;
+            try
+            {
+                _panelApiDbcontext.Tags.Update(entity);
+                await _panelApiDbcontext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
     }
 }

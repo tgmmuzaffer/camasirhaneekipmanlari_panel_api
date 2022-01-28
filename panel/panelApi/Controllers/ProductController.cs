@@ -40,7 +40,6 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "Product already exist");
                 return StatusCode(404, ModelState);
             }
-            string p = _hostingEnvironment.ContentRootPath;
             string filePath = _hostingEnvironment.ContentRootPath + @"\webpImages\" + productDto.ImageName + ".webp";
             System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(productDto.ImagePath));
             product.CreateDate = productDto.CreateDate;
