@@ -152,53 +152,45 @@ namespace panelApi.Controllers
         [Route("updateBlog")]
         public async Task<IActionResult> UpdateBlog([FromBody] BlogDto blogDto)
         {
-            try
+            var orjblog = await _blogRepo.Get(a => a.Id == blogDto.Id);
+            bool isblogTagupdated = true;
+            if (orjblog.Title == null)
             {
-                var orjblog = await _blogRepo.Get(a => a.Id == blogDto.Id);
-                bool isblogTagupdated = true;
-                if (orjblog.Title==null)
+                ModelState.AddModelError("", "Blog not found");
+                return StatusCode(404, ModelState);
+            }
+            Blog blog = new()
+            {
+                Content = blogDto.Content,
+                Id = blogDto.Id,
+                CreateDate = blogDto.CreateDate,
+                ImagePath = blogDto.ImageName + ".webp",
+                ShortDesc = blogDto.ShortDesc,
+                Title = blogDto.Title
+            };
+            if (blog.ImagePath != orjblog.ImagePath)
+            {
+                var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + orjblog.ImagePath;
+                System.IO.File.Delete(imgpath);
+            }
+            var result = await _blogRepo.Update(blog);
+            foreach (var item in blogDto.TagIds)
+            {
+                BlogTag blogTag = new BlogTag
                 {
-                    ModelState.AddModelError("", "Blog not found");
-                    return StatusCode(404, ModelState);
-                }
-                Blog blog = new()
-                {
-                    Content = blogDto.Content,
-                    Id = blogDto.Id,
-                    CreateDate = blogDto.CreateDate,
-                    ImagePath = blogDto.ImageName + ".webp",
-                    ShortDesc = blogDto.ShortDesc,
-                    Title = blogDto.Title
+                    BlogId = blogDto.Id,
+                    TagId = item
                 };
-                if (blog.ImagePath != orjblog.ImagePath)
-                {
-                    var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + orjblog.ImagePath;
-                    System.IO.File.Delete(imgpath);
-                }
-                var result = await _blogRepo.Update(blog);
-                foreach (var item in blogDto.TagIds)
-                {
-                    BlogTag blogTag = new BlogTag
-                    {
-                        BlogId = blogDto.Id,
-                        TagId = item
-                    };
-                    isblogTagupdated = await _blogTagRepo.Update(blogTag);
-                }
-                string filePath = _hostingEnvironment.ContentRootPath + @"\webpImages\" + blogDto.ImageName + ".webp";
-                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(blogDto.ImagePath));
-                if (!result || !isblogTagupdated)
-                {
-                    ModelState.AddModelError("", "Blog could not updated");
-                    return StatusCode(500, ModelState);
-                }
-                return NoContent();
+                isblogTagupdated = await _blogTagRepo.Update(blogTag);
             }
-            catch (Exception e)
+            string filePath = _hostingEnvironment.ContentRootPath + @"\webpImages\" + blogDto.ImageName + ".webp";
+            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(blogDto.ImagePath));
+            if (!result || !isblogTagupdated)
             {
-
-                throw new Exception(e.Message);
+                ModelState.AddModelError("", "Blog could not updated");
+                return StatusCode(500, ModelState);
             }
+            return NoContent();
 
         }
 

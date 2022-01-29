@@ -22,5 +22,6 @@ namespace panelApi.DataAccess
         public virtual DbSet<Blog> Blogs { get; set; }
         public virtual DbSet<BlogTag> BlogTags { get; set; }
         public virtual DbSet<Slider> Sliders { get; set; }
+        public virtual DbSet<Referance> Referances{ get; set; }
     }
 }
