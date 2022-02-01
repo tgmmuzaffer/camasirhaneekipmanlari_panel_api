@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using panelApi.DataAccess;
 
 namespace panelApi.Migrations
 {
     [DbContext(typeof(PanelApiDbcontext))]
-    partial class PanelApiDbcontextModelSnapshot : ModelSnapshot
+    [Migration("20220131215900_upgradeUser")]
+    partial class upgradeUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

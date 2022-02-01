@@ -49,7 +49,7 @@ namespace panelApi.Controllers
                 return BadRequest(new { message = "Something went wrong! Try Again" });
             }
             return Ok(userdata);
-        }
+        }              
 
         [Authorize(Roles ="Admin")]
         [HttpPost]
@@ -89,20 +89,42 @@ namespace panelApi.Controllers
             return Ok(userDto);
         }
 
-        [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(User))]
+        [ProducesResponseType(200, Type = typeof(UserDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Route("getByUserName")]
-        public async Task<IActionResult> GetByUserName(string userName)
+        [Route("getByUserName/{username}")]
+        public async Task<IActionResult> GetByUserName(string username)
         {
-            var user = await _userRepo.Get(a => a.UserName == userName);
-            if (user == null)
+            var userData = await _userRepo.Get(a => a.UserName == username);
+            var role = await _roleRepo.GetRole(r => r.Id == userData.RoleId);
+            UserDto userDto = new UserDto
+            { Id = userData.Id, Password = userData.Password, RoleId = role.Id, UserName = userData.UserName };
+            if (userData == null)
             {
                 ModelState.AddModelError("", "User not found");
                 return StatusCode(404, ModelState);
             }
-            return Ok(user);
+            return Ok(userDto);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [ProducesResponseType(200, Type = typeof(UserDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("getByResetPass/{resetPass}")]
+        public async Task<IActionResult> GetByResetPass(string resetPass)
+        {
+            var userData = await _userRepo.Get(a => a.ResetPassword == resetPass);
+            var role = await _roleRepo.GetRole(r => r.Id == userData.RoleId);
+            UserDto userDto = new UserDto
+            { Id = userData.Id, Password = userData.Password, RoleId = role.Id, UserName = userData.UserName, ResetPassword=userData.ResetPassword };
+            if (userData == null)
+            {
+                ModelState.AddModelError("", "User not found");
+                return StatusCode(404, ModelState);
+            }
+            return Ok(userDto);
         }
 
         [Authorize(Roles = "Admin")]
@@ -145,7 +167,24 @@ namespace panelApi.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Route("updateResetUser")]
+        public async Task<IActionResult> UpdateResetUser([FromBody] User user)
+        {
+            var result = await _userRepo.Update(user);
+            if (!result)
+            {
+                ModelState.AddModelError("", "User could not updated");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Admin, Editor")]
         [HttpDelete]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -168,5 +207,9 @@ namespace panelApi.Controllers
             }
             return NoContent();
         }
+
+
+
+
     }
 }

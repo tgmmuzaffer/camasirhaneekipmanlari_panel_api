@@ -63,6 +63,7 @@ namespace panelApi.Repository
             return userDto;
         }
 
+
         public async Task<bool> Delete(User entity)
         {
             _panelApiDbcontext.Users.Remove(entity);
