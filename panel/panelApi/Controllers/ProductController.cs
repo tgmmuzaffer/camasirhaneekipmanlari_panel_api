@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
@@ -18,11 +19,13 @@ namespace panelApi.Controllers
     {
         private readonly IProductRepo _productRepo;
         private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly ILogger<ProductController> _logger;
 
-        public ProductController(IProductRepo productRepo, IHostingEnvironment hostingEnvironment)
+        public ProductController(IProductRepo productRepo, IHostingEnvironment hostingEnvironment, ILogger<ProductController> logger)
         {
             _productRepo = productRepo;
             _hostingEnvironment = hostingEnvironment;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -37,6 +40,7 @@ namespace panelApi.Controllers
             var isexist = await _productRepo.IsExist(a => a.Name == productDto.Name);
             if (isexist)
             {
+                _logger.LogError("CreateProduct", "Ürün zaten mevcut");
                 ModelState.AddModelError("", "Product already exist");
                 return StatusCode(404, ModelState);
             }
@@ -51,9 +55,12 @@ namespace panelApi.Controllers
             var result = await _productRepo.Create(product);
             if (result == null)
             {
+                _logger.LogError("CreateProduct_Fail", $"{productDto.Name} isimli Ürün oluşturulurken hata meydana geldi.");
                 ModelState.AddModelError("", "Product could not created");
                 return StatusCode(500, ModelState);
             }
+
+            _logger.LogWarning("CreateProduct_Success", $"{productDto.Name} isimli Ürün oluşturuldu.");
             return Ok(product.Id);
         }
 
@@ -66,9 +73,11 @@ namespace panelApi.Controllers
             var result = await _productRepo.Get(a => a.Id == productId);
             if (result == null)
             {
+                _logger.LogError("GetProduct_Fail", $"{productId} Id'li Ürün bulunamdı.");
                 ModelState.AddModelError("", "Product not found");
                 return StatusCode(404, ModelState);
             }
+
             return Ok(result);
         }
 
@@ -82,9 +91,11 @@ namespace panelApi.Controllers
             var result = await _productRepo.GetList();
             if (result.Count < 0)
             {
+                _logger.LogError("GetAllProducts_Fail", "Ürünler bulunamdı.");
                 ModelState.AddModelError("", "Product not found");
                 return StatusCode(404, ModelState);
             }
+
             return Ok(result);
         }
 
@@ -99,15 +110,19 @@ namespace panelApi.Controllers
             var isexist = await _productRepo.IsExist(a => a.Id == product.Id);
             if (!isexist)
             {
+                _logger.LogError("UpdateProduct", $"{product.Name} isimli_{product.Id} Id'li Ürün bulunamdı.");
                 ModelState.AddModelError("", "Product not found");
                 return StatusCode(404, ModelState);
             }
             var result = await _productRepo.Update(product);
             if (!result)
             {
+                _logger.LogError("UpdateProduct_Fail", $"{product.Name} isimli Ürün güncellenirken hata meydana geldi.");
                 ModelState.AddModelError("", "Product could not updated");
                 return StatusCode(500, ModelState);
             }
+
+            _logger.LogWarning("UpdateProduct_Success", $"{product.Name} isimli_{product.Id} id'li Ürün güncellendi");
             return NoContent();
         }
 
@@ -122,6 +137,7 @@ namespace panelApi.Controllers
             var product = await _productRepo.Get(a => a.Id == Id);
             if (product == null)
             {
+                _logger.LogError("DeleteProduct", $"{Id} Id'li Ürün bulunamdı.");
                 ModelState.AddModelError("", "Product not found");
                 return StatusCode(404, ModelState);
             }
@@ -129,9 +145,12 @@ namespace panelApi.Controllers
             var result = await _productRepo.Delete(product);
             if (!result)
             {
+                _logger.LogError("DeleteProduct_Fail", $"{product.Name} isimli Ürün silinirken hata oluştu.");
                 ModelState.AddModelError("", "Product could not deleted");
                 return StatusCode(500, ModelState);
             }
+
+            _logger.LogWarning("DeleteProduct_Success", $"{product.Name} isimli Ürün silindi.");
             return NoContent();
         }
     }

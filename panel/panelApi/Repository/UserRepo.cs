@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using panelApi.DataAccess;
 using panelApi.Models;
 using panelApi.Models.Dtos;
+using panelApi.RepoExtension;
 using panelApi.Repository.IRepository;
 using System;
 using System.Collections.Generic;
@@ -20,47 +22,42 @@ namespace panelApi.Repository
 {
     public class UserRepo : IUserRepo
     {
+        private readonly ITokenGenerator _tokenGenerator;
+        private readonly ILogger<UserRepo> _logger;
         private readonly PanelApiDbcontext _panelApiDbcontext;
-        private readonly AppSettings _appSettings;
-        public UserRepo(PanelApiDbcontext panelApiDbcontext, IOptions<AppSettings> appsettings)
+        public UserRepo(PanelApiDbcontext panelApiDbcontext, ITokenGenerator tokenGenerator, ILogger<UserRepo> logger)
         {
             _panelApiDbcontext = panelApiDbcontext;
-            _appSettings = appsettings.Value;
+            _tokenGenerator = tokenGenerator;
+            _logger = logger;
+
         }
         public async Task<UserDto> Authenticate(string mail, string password)
         {
-            UserDto userDto = new UserDto();
-
-            var user = await _panelApiDbcontext.Users.FirstOrDefaultAsync(b => b.UserName == mail && b.Password == password);
-            userDto.Role = await _panelApiDbcontext.Roles.FirstOrDefaultAsync(c => c.Id == user.RoleId);
-            if (user == null)
+            try
             {
+                UserDto userDto = new UserDto();
+                var user = await _panelApiDbcontext.Users.FirstOrDefaultAsync(b => b.UserName == mail);
+                bool isValidPass = Security.ValidateHash(password, user.Salt, user.Password);
+                if (!isValidPass)
+                {
+                    return null;
+                }
+
+                userDto.Role = await _panelApiDbcontext.Roles.FirstOrDefaultAsync(c => c.Id == user.RoleId);              
+                userDto.Token = _tokenGenerator.GetToken(user.Id, userDto.Role.RoleName);
+                userDto.Id = user.Id;
+                userDto.Password = string.Empty;
+                userDto.UserName = user.UserName;
+                userDto.RoleId = userDto.Role.Id;
+                return userDto;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
                 return null;
             }
-            var tokenhandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
 
-            var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.Name, user.Id.ToString()));
-            claims.Add(new Claim(ClaimTypes.Role, userDto.Role.RoleName));
-
-            var claimIdentity = new ClaimsIdentity();
-            claimIdentity.AddClaims(claims);
-
-            var signinCredential = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature);
-
-            var tokendescriptor = new SecurityTokenDescriptor();
-            tokendescriptor.Subject = claimIdentity;
-            tokendescriptor.Expires = DateTime.Now.AddDays(7);
-            tokendescriptor.SigningCredentials = signinCredential;
-
-            var token = tokenhandler.CreateToken(tokendescriptor);
-            userDto.Token = tokenhandler.WriteToken(token);
-            userDto.Id = user.Id;
-            userDto.Password = string.Empty;
-            userDto.UserName = user.UserName;
-            userDto.RoleId = userDto.Role.Id;
-            return userDto;
         }
 
 
@@ -109,9 +106,11 @@ namespace panelApi.Repository
         {
             try
             {
+                var role = await _panelApiDbcontext.Roles.FirstOrDefaultAsync(c => c.Id == user.RoleId);
                 _panelApiDbcontext.Users.Add(user);
                 await _panelApiDbcontext.SaveChangesAsync();
                 user.Password = string.Empty;
+                //user.Token = _tokenGenerator.GetToken(user.Id, role.RoleName);
                 return user;
             }
             catch (Exception e)

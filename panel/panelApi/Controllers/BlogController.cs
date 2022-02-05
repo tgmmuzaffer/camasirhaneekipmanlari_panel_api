@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
@@ -20,12 +21,15 @@ namespace panelApi.Controllers
         private readonly IBlogRepo _blogRepo;
         private readonly IBlogTagRepo _blogTagRepo;
         private readonly ITagRepo _tagRepo;
-        public BlogController(IBlogRepo blogRepo, IHostingEnvironment hostingEnvironment, IBlogTagRepo blogTagRepo, ITagRepo tagRepo)
+        private readonly ILogger<BlogController> _logger;
+
+        public BlogController(IBlogRepo blogRepo, IHostingEnvironment hostingEnvironment, IBlogTagRepo blogTagRepo, ITagRepo tagRepo, ILogger<BlogController> logger)
         {
             _blogRepo = blogRepo;
             _hostingEnvironment = hostingEnvironment;
             _blogTagRepo = blogTagRepo;
             _tagRepo = tagRepo;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -39,6 +43,7 @@ namespace panelApi.Controllers
             var isexist = await _blogRepo.IsExist(a => a.Title == blogDto.Title);
             if (isexist)
             {
+                _logger.LogError("CreateReferance", "Blog zaten mevcut");
                 ModelState.AddModelError("", "Blog already exist");
                 return StatusCode(404, ModelState);
             }
@@ -68,9 +73,13 @@ namespace panelApi.Controllers
 
             if (result == null || blogTagResult == null)
             {
+                _logger.LogError("CreateBlog_Fail", $"{blogDto.Title} başlıklı blog oluşturulurken hata meydana geldi.");
+                _logger.LogError("CreateBlog_Fail", $"{blogDto.Title} başlıklı blog oluşturulurken taglar eklenemedi.");
                 ModelState.AddModelError("", "Blog could not created");
                 return StatusCode(500, ModelState);
             }
+
+            _logger.LogWarning("CreateBlog_Success", $"{result.Title} başlıklı blog oluşturuldu");
             return Ok(blog.Id);
         }
 
@@ -100,9 +109,11 @@ namespace panelApi.Controllers
             }
             if (result == null)
             {
+                _logger.LogWarning("GetBlog", $"{blogDto.Title} başlıklı {blogDto.Id} id'li blog bulunamadı.");
                 ModelState.AddModelError("", "Blog not found");
                 return StatusCode(404, ModelState);
             }
+
             return Ok(blogDto);
         }
 
@@ -138,9 +149,11 @@ namespace panelApi.Controllers
 
             if (result.Count < 0 || blogDtos.Count < 0)
             {
+                _logger.LogWarning("GetAllBlogs_BlogController", "Bloglar bulunamadı.");
                 ModelState.AddModelError("", "Blog not found");
                 return StatusCode(404, ModelState);
             }
+
             return Ok(blogDtos);
         }
 
@@ -156,9 +169,11 @@ namespace panelApi.Controllers
             bool isblogTagupdated = true;
             if (orjblog.Title == null)
             {
+                _logger.LogError("UpdateSlider", $"{blogDto.Title} başlıklı {blogDto.Id} id'li blog bulunamadı.");
                 ModelState.AddModelError("", "Blog not found");
                 return StatusCode(404, ModelState);
             }
+
             Blog blog = new()
             {
                 Content = blogDto.Content,
@@ -173,6 +188,7 @@ namespace panelApi.Controllers
                 var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + orjblog.ImagePath;
                 System.IO.File.Delete(imgpath);
             }
+
             var result = await _blogRepo.Update(blog);
             foreach (var item in blogDto.TagIds)
             {
@@ -187,11 +203,14 @@ namespace panelApi.Controllers
             System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(blogDto.ImagePath));
             if (!result || !isblogTagupdated)
             {
+                _logger.LogError("UpdateBlog_Fail", $"{blogDto.Title} başlıklı blog güncellenirken hata meydana geldi.");
+                _logger.LogError("UpdateBlog_Fail", $"{blogDto.Title} başlıklı blog güncellenirken taglar eklenemedi.");
                 ModelState.AddModelError("", "Blog could not updated");
                 return StatusCode(500, ModelState);
             }
-            return NoContent();
 
+            _logger.LogWarning("UpdateBlog_Success", $"{blogDto.Title} başlıklı_{blogDto.Id} id'li blog güncellendi");
+            return NoContent();
         }
 
         [Authorize]
@@ -202,31 +221,28 @@ namespace panelApi.Controllers
         [Route("deleteBlog/{Id}")]
         public async Task<IActionResult> DeleteBlog(int Id)
         {
-            try
+            var blog = await _blogRepo.Get(a => a.Id == Id);
+            if (blog == null)
             {
-                var blog = await _blogRepo.Get(a => a.Id == Id);
-                if (blog == null)
-                {
-                    ModelState.AddModelError("", "Blog not found");
-                    return StatusCode(404, ModelState);
-                }
-                var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + blog.ImagePath;
-                System.IO.File.Delete(imgpath);
-                var result = await _blogRepo.Delete(blog);
-
-                var blogtag = await _blogTagRepo.RemoveMultiple(Id);
-
-                if (!result || !blogtag)
-                {
-                    ModelState.AddModelError("", "Blog could not deleted");
-                    return StatusCode(500, ModelState);
-                }
+                _logger.LogError("DeleteSlider", $"{blog.Id} id'li blog bulunamadı.");
+                ModelState.AddModelError("", "Blog not found");
+                return StatusCode(404, ModelState);
             }
-            catch (Exception e)
+            var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + blog.ImagePath;
+            System.IO.File.Delete(imgpath);
+            var result = await _blogRepo.Delete(blog);
+
+            var blogtag = await _blogTagRepo.RemoveMultiple(Id);
+
+            if (!result || !blogtag)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("DeleteBlog_Fail", $"{blog.Title} başlıklı blog silinirken hata oluştu.");
+                _logger.LogError("DeleteBlog_Fail", $"{blog.Title} başlıklı blogun tagları silinirken hata oluştu..");
+                ModelState.AddModelError("", "Blog could not deleted");
+                return StatusCode(500, ModelState);
             }
 
+            _logger.LogWarning("DeleteBlog_Succeess", $"{blog.Title} başlıklı blog silindi.");
             return NoContent();
         }
     }

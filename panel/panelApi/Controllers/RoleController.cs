@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
 using System;
@@ -15,9 +16,12 @@ namespace panelApi.Controllers
     public class RoleController : ControllerBase
     {
         private readonly IRoleRepo _roleRepo;
-        public RoleController(IRoleRepo roleRepo)
+        private readonly ILogger<RoleController> _logger;
+
+        public RoleController(IRoleRepo roleRepo, ILogger<RoleController> logger)
         {
             _roleRepo=roleRepo;
+            _logger = logger;
         }
 
         [AllowAnonymous]
@@ -30,9 +34,11 @@ namespace panelApi.Controllers
             var result =await _roleRepo.GetRoles();
             if (result.Count < 0)
             {
+                _logger.LogError("GetAllRoles_Fail", "Roller bulunamdı.");
                 ModelState.AddModelError("", "Property not found");
                 return StatusCode(404, ModelState);
             }
+
             return Ok(result);
         }
 
@@ -46,9 +52,11 @@ namespace panelApi.Controllers
             var result = await _roleRepo.GetRole();
             if (result!=null)
             {
+                _logger.LogError("GetRole_Fail", $"{Id} Id'li Rol bulunamdı.");
                 ModelState.AddModelError("", "Property not found");
                 return StatusCode(404, ModelState);
             }
+
             return Ok(result);
         }
     }

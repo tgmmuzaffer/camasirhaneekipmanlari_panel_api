@@ -8,6 +8,7 @@ namespace panelApi.Models
         public string UserName{ get; set; }
         public string Password { get; set; }
         public string ResetPassword { get; set; }
+        public string Salt { get; set; }
         public int RoleId { get; set; }
         [NotMapped]
         public string Token { get; set; }

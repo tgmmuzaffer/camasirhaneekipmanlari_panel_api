@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
@@ -19,11 +20,14 @@ namespace panelApi.Controllers
         private readonly ICategoryRepo _categoryRepo;
         private readonly IPropertyCategoryRepo _propertyCategoryRepo;
         private readonly IProductPropertyRepo _productPropertyRepo;
-        public CategoryController(ICategoryRepo categoryRepo, IPropertyCategoryRepo propertyCategoryRepo, IProductPropertyRepo productPropertyRepo)
+        private readonly ILogger<CategoryController> _logger;
+
+        public CategoryController(ICategoryRepo categoryRepo, IPropertyCategoryRepo propertyCategoryRepo, IProductPropertyRepo productPropertyRepo, ILogger<CategoryController> logger)
         {
             _categoryRepo = categoryRepo;
             _propertyCategoryRepo = propertyCategoryRepo;
             _productPropertyRepo = productPropertyRepo;
+            _logger = logger;
         }
 
 
@@ -39,6 +43,7 @@ namespace panelApi.Controllers
             var isexist = await _categoryRepo.IsExist(a => a.Name == categoryDto.Name);
             if (isexist)
             {
+                _logger.LogError("CreateCategory", "Kategori zaten mevcut");
                 ModelState.AddModelError("", "Category already exist");
                 return StatusCode(404, ModelState);
             }
@@ -62,9 +67,13 @@ namespace panelApi.Controllers
 
             if (result == null && isOk == true)
             {
-                ModelState.AddModelError("", "Category could not created");
+                _logger.LogError("CreateCategory_Fail", $"{categoryDto.Name} isimli Kategori oluşturulurken hata meydana geldi.");
+                _logger.LogError("CreateCategory_Fail", $"{categoryDto.Name} isimli Kategori oluşturulurken Özellikleri eklenemedi.");
+                ModelState.AddModelError("", "Category could not created");              
                 return StatusCode(500, ModelState);
             }
+
+            _logger.LogWarning("CreateCategory_Success", $"{categoryDto.Name} isimli Kategori oluşturuldu.");
             return Ok(categoryDto.Id);
         }
 
@@ -87,6 +96,7 @@ namespace panelApi.Controllers
             };
             if (result == null)
             {
+                _logger.LogError("GetCategory_Fail", $"{Id} Id'li Kategori bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
@@ -103,7 +113,8 @@ namespace panelApi.Controllers
             var result = await _categoryRepo.GetList();
             if (result.Count < 0)
             {
-                ModelState.AddModelError("", "Property not found");
+                _logger.LogError("GetAllCategories_Fail", "Kategoriler bulunamdı.");
+                ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
             return Ok(result);
@@ -121,6 +132,7 @@ namespace panelApi.Controllers
             var isexist = await _categoryRepo.IsExist(a => a.Id == categoryDto.Id);
             if (!isexist)
             {
+                _logger.LogError("UpdateCategory", $"{categoryDto.Name} isimli_{categoryDto.Id} Id'li Kategori bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
@@ -141,11 +153,15 @@ namespace panelApi.Controllers
                 var res = await _propertyCategoryRepo.Update(propertyCategory);
                 isOk = res == false ? false : true;
             }
-            if (!result)
+            if (!result || !isOk)
             {
+                _logger.LogError("UpdateCategory_Fail", $"{categoryDto.Name} isimli Kategori güncellenirken hata meydana geldi.");
+                _logger.LogError("UpdateCategory_Fail", $"{categoryDto.Name} isimli Kategori güncellenirken Özellikleri eklenemedi.");
                 ModelState.AddModelError("", "Category could not updated");
                 return StatusCode(500, ModelState);
             }
+
+            _logger.LogWarning("UpdateCategory_Success", $"{categoryDto.Name} isimli_{categoryDto.Id} id'li Kategori güncellendi");
             return NoContent();
         }
 
@@ -160,6 +176,7 @@ namespace panelApi.Controllers
             var category = await _categoryRepo.Get(a => a.Id == Id);
             if (category == null)
             {
+                _logger.LogError("DeleteCategory", $"{Id} Id'li Kategori bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
@@ -167,9 +184,12 @@ namespace panelApi.Controllers
             var result = await _categoryRepo.Delete(category);
             if (!result)
             {
+                _logger.LogError("DeleteCategory_Fail", $"{category.Name} başlıklı Kategori silinirken hata oluştu.");
                 ModelState.AddModelError("", "Category could not deleted");
                 return StatusCode(500, ModelState);
             }
+
+            _logger.LogWarning("DeleteCategory_Success", $"{category.Name} başlıklı Kategori silindi.");
             return NoContent();
         }
     }
