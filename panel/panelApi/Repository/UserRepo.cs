@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using panelApi.DataAccess;
 using panelApi.Models;
 using panelApi.Models.Dtos;
@@ -11,11 +7,8 @@ using panelApi.RepoExtension;
 using panelApi.Repository.IRepository;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace panelApi.Repository
@@ -32,6 +25,7 @@ namespace panelApi.Repository
             _logger = logger;
 
         }
+
         public async Task<UserDto> Authenticate(string mail, string password)
         {
             try
@@ -44,7 +38,7 @@ namespace panelApi.Repository
                     return null;
                 }
 
-                userDto.Role = await _panelApiDbcontext.Roles.FirstOrDefaultAsync(c => c.Id == user.RoleId);              
+                userDto.Role = await _panelApiDbcontext.Roles.FirstOrDefaultAsync(c => c.Id == user.RoleId);
                 userDto.Token = _tokenGenerator.GetToken(user.Id, userDto.Role.RoleName);
                 userDto.Id = user.Id;
                 userDto.Password = string.Empty;
@@ -54,52 +48,82 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError(e, e.Message);
+                _logger.LogError("UserRepo Authenticate", e.Message);
                 return null;
             }
-
         }
-
 
         public async Task<bool> Delete(User entity)
         {
-            _panelApiDbcontext.Users.Remove(entity);
-            await _panelApiDbcontext.SaveChangesAsync();
-            return true;
+            try
+            {
+                _panelApiDbcontext.Users.Remove(entity);
+                await _panelApiDbcontext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("UserRepo Delete", e.Message);
+                return false;
+            }
         }
 
         public async Task<User> Get(Expression<Func<User, bool>> filter = null)
         {
-            var user = filter == null ? await _panelApiDbcontext.Users.FirstOrDefaultAsync() : await _panelApiDbcontext.Users.FirstOrDefaultAsync(filter);
-            return user;
+            try
+            {
+                var user = filter == null ? await _panelApiDbcontext.Users.FirstOrDefaultAsync() : await _panelApiDbcontext.Users.FirstOrDefaultAsync(filter);
+                return user;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("UserRepo Get", e.Message);
+                return null;
+            }
         }
 
         public async Task<ICollection<UserDto>> GetList(Expression<Func<User, bool>> filter = null)
         {
-            List<UserDto> userlistDto = new List<UserDto>();
-            var user = filter == null ? await _panelApiDbcontext.Users.ToListAsync() : await _panelApiDbcontext.Users.Where(filter).ToListAsync();
-            foreach (var item in user)
+            try
             {
-                UserDto userDto = new UserDto();
-                userDto.Id = item.Id;
-                userDto.Password = item.Password;
-                userDto.Role = await _panelApiDbcontext.Roles.FirstOrDefaultAsync(a => a.Id == item.RoleId);
-                userDto.Token = item.Token;
-                userDto.UserName = item.UserName;
-                userDto.RoleId = item.RoleId;
-                userlistDto.Add(userDto);
+                List<UserDto> userlistDto = new List<UserDto>();
+                var user = filter == null ? await _panelApiDbcontext.Users.ToListAsync() : await _panelApiDbcontext.Users.Where(filter).ToListAsync();
+                foreach (var item in user)
+                {
+                    UserDto userDto = new UserDto();
+                    userDto.Id = item.Id;
+                    userDto.Password = item.Password;
+                    userDto.Role = await _panelApiDbcontext.Roles.FirstOrDefaultAsync(a => a.Id == item.RoleId);
+                    userDto.Token = item.Token;
+                    userDto.UserName = item.UserName;
+                    userDto.RoleId = item.RoleId;
+                    userlistDto.Add(userDto);
+                }
+                return userlistDto;
             }
-            return userlistDto;
+            catch (Exception e)
+            {
+                _logger.LogError("UserRepo GetList", e.Message);
+                return null;
+            }
         }
 
         public async Task<bool> IsUnique(string mail)
         {
-            var user = await _panelApiDbcontext.Users.FirstOrDefaultAsync(a => a.UserName == mail);
-            if (user == null)
+            try
             {
-                return true;
+                var user = await _panelApiDbcontext.Users.FirstOrDefaultAsync(a => a.UserName == mail);
+                if (user == null)
+                {
+                    return true;
+                }
+                return false;
             }
-            return false;
+            catch (Exception e)
+            {
+                _logger.LogError("UserRepo IsUnique", e.Message);
+                return false;
+            }
         }
 
         public async Task<User> Register(User user)
@@ -115,10 +139,9 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-
-                throw;
+                _logger.LogError("UserRepo ", e.Message);
+                return null;
             }
-
         }
 
         public async Task<bool> Update(User entity)
@@ -131,10 +154,9 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-
-                throw new Exception(e.Message);
+                _logger.LogError("UserRepo ", e.Message);
+                return false;
             }
-
         }
     }
 }

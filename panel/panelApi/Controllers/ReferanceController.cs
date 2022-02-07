@@ -7,8 +7,6 @@ using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -43,6 +41,7 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "Referance already exist");
                 return StatusCode(404, ModelState);
             }
+
             string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + referanceDto.Name;
             System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(referanceDto.ImageData));
             Referance referance = new()
@@ -54,7 +53,6 @@ namespace panelApi.Controllers
                 ShortDescription = referanceDto.ShortDescription
             };
             var result = await _referanceRepo.Create(referance);
-
             if (result == null)
             {
                 _logger.LogError("CreateReferance_Fail", $"{referanceDto.Name} isimli Referans oluşturulurken hata meydana geldi.");
@@ -92,7 +90,6 @@ namespace panelApi.Controllers
         public async Task<IActionResult> GetAllReferances()
         {
             var result = await _referanceRepo.GetList();
-
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllReferances_Fail", "Referanslar bulunamdı.");
@@ -112,7 +109,6 @@ namespace panelApi.Controllers
         public async Task<IActionResult> UpdateReferance([FromBody] ReferanceDto referanceDto)
         {
             var orjreferance = await _referanceRepo.Get(a => a.Id == referanceDto.Id);
-            bool isUpdated = true;
             if (orjreferance.Name == null)
             {
                 _logger.LogError("UpdateReferance", $"{referanceDto.Name} isimli_{referanceDto.Id} Id'li Referans bulunamdı.");
@@ -135,14 +131,15 @@ namespace panelApi.Controllers
             }
 
             var result = await _referanceRepo.Update(referance);
-            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + referanceDto.ImageName;
-            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(referanceDto.ImageData));
-            if (!result || !isUpdated)
+            if (!result)
             {
                 _logger.LogError("UpdateReferance_Fail", $"{referanceDto.Name} isimli Referans güncellenirken hata meydana geldi.");
                 ModelState.AddModelError("", "Referance could not updated");
                 return StatusCode(500, ModelState);
             }
+
+            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + referanceDto.ImageName;
+            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(referanceDto.ImageData));           
 
             _logger.LogWarning("UpdateReferance_Success", $"{referanceDto.Name} isimli_{referanceDto.Id} id'li Referans güncellendi");
             return NoContent();
@@ -163,10 +160,10 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "Referance not found");
                 return StatusCode(404, ModelState);
             }
+
             var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + referance.ImageName;
             System.IO.File.Delete(imgpath);
             var result = await _referanceRepo.Delete(referance);
-
             if (!result)
             {
                 _logger.LogError("DeleteReferance_Fail", $"{referance.Name} isimli Referans silinirken hata oluştu.");

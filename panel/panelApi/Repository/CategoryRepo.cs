@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using panelApi.DataAccess;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
@@ -12,9 +13,11 @@ namespace panelApi.Repository
 {
     public class CategoryRepo : ICategoryRepo
     {
+        private readonly ILogger<CategoryRepo> _logger;
         private readonly PanelApiDbcontext _panelApiDbcontext;
-        public CategoryRepo(PanelApiDbcontext panelApiDbcontext)
+        public CategoryRepo(PanelApiDbcontext panelApiDbcontext, ILogger<CategoryRepo> logger)
         {
+            _logger = logger;
             _panelApiDbcontext = panelApiDbcontext;
         }
         public async Task<Category> Create(Category entity)
@@ -27,7 +30,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("CategoryRepo Create", $"{e.Message}");
+                return null;
             }
         }
 
@@ -41,7 +45,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("CategoryRepo Delete", $"{e.Message}");
+                return false;
             }
         }
 
@@ -54,7 +59,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("CategoryRepo Get", $"{e.Message}");
+                return null;
             }
         }
 
@@ -67,7 +73,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("CategoryRepo GetList", $"{e.Message}");
+                return null;
             }
         }
 
@@ -80,7 +87,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("CategoryRepo IsExist", $"{e.Message}");
+                return false;
             }
         }
 
@@ -94,7 +102,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("CategoryRepo Update", $"{e.Message}");
+                return false;
             }
         }
     }

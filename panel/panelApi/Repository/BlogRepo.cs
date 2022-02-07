@@ -28,7 +28,7 @@ namespace panelApi.Repository
             try
             {
                 _panelApiDbcontext.Blogs.Add(entity);
-                //await _panelApiDbcontext.SaveChangesAsync();
+                await _panelApiDbcontext.SaveChangesAsync();
                 return entity;
             }
             catch (Exception e)
@@ -43,7 +43,7 @@ namespace panelApi.Repository
             try
             {
                 _panelApiDbcontext.Blogs.Remove(entity);
-                //await _panelApiDbcontext.SaveChangesAsync();
+                await _panelApiDbcontext.SaveChangesAsync();
                 return true;
             }
             catch (Exception e)
@@ -100,7 +100,7 @@ namespace panelApi.Repository
             try
             {
                 _panelApiDbcontext.Blogs.Update(entity);
-                //await _panelApiDbcontext.SaveChangesAsync();
+                await _panelApiDbcontext.SaveChangesAsync();
                 return true;
             }
             catch (Exception e)

@@ -7,8 +7,6 @@ using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -114,6 +112,7 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "Product not found");
                 return StatusCode(404, ModelState);
             }
+
             var result = await _productRepo.Update(product);
             if (!result)
             {

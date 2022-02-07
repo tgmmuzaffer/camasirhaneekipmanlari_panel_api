@@ -1,14 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -47,6 +43,7 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "Category already exist");
                 return StatusCode(404, ModelState);
             }
+
             Category category = new Category()
             {
                 Id = categoryDto.Id,
@@ -86,7 +83,21 @@ namespace panelApi.Controllers
         {
             var result = await _categoryRepo.Get(a => a.Id == Id);
             var resultPropertyCategory = await _propertyCategoryRepo.GetIdList(b => b.CategoryId == Id);
+            if (resultPropertyCategory == null)
+            {
+                _logger.LogError("GetCategory_Fail", $"{Id} Id'li Kategori Özelliği bulunamdı.");
+                ModelState.AddModelError("", "Category not found");
+                return StatusCode(404, ModelState);
+            }
+
             var productProperties = await _productPropertyRepo.GetNames(d => resultPropertyCategory.Contains(d.Id));
+            if (productProperties == null)
+            {
+                _logger.LogError("GetCategory_Fail", $"{Id} Id'li Ürün Özelliği bulunamdı.");
+                ModelState.AddModelError("", "Category not found");
+                return StatusCode(404, ModelState);
+            }
+
             CategoryDto categoryDto = new()
             {
                 Id = result.Id,
@@ -100,6 +111,7 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
+
             return Ok(categoryDto);
         }
 
@@ -111,12 +123,13 @@ namespace panelApi.Controllers
         public async Task<IActionResult> GetAllCategories()
         {
             var result = await _categoryRepo.GetList();
-            if (result.Count < 0)
+            if (result == null)
             {
                 _logger.LogError("GetAllCategories_Fail", "Kategoriler bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
+
             return Ok(result);
         }
 
@@ -142,6 +155,13 @@ namespace panelApi.Controllers
                 Name = categoryDto.Name
             };
             var result = await _categoryRepo.Update(category);
+            if (!isexist)
+            {
+                _logger.LogError("UpdateCategory_Fail", $"{categoryDto.Name} isimli Kategori güncellenirken hata meydana geldi.");
+                ModelState.AddModelError("", "Category could not updated");
+                return StatusCode(500, ModelState);
+            }
+
             for (int i = 0; i < categoryDto.ProductPropertyIds.Count; i++)
             {
                 PropertyCategory propertyCategory = new PropertyCategory()
@@ -155,7 +175,6 @@ namespace panelApi.Controllers
             }
             if (!result || !isOk)
             {
-                _logger.LogError("UpdateCategory_Fail", $"{categoryDto.Name} isimli Kategori güncellenirken hata meydana geldi.");
                 _logger.LogError("UpdateCategory_Fail", $"{categoryDto.Name} isimli Kategori güncellenirken Özellikleri eklenemedi.");
                 ModelState.AddModelError("", "Category could not updated");
                 return StatusCode(500, ModelState);

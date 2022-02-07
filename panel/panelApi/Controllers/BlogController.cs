@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
 using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
@@ -11,8 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Data.Entity;
-using panelApi.Repository;
 
 namespace panelApi.Controllers
 {
@@ -43,7 +40,7 @@ namespace panelApi.Controllers
         [Route("createBlog")]
         public async Task<IActionResult> CreateBlog([FromBody] BlogDto blogDto)
         {
-                var isexist = await _blogRepo.IsExist(a => a.Title == blogDto.Title);
+            var isexist = await _blogRepo.IsExist(a => a.Title == blogDto.Title);
             if (isexist)
             {
                 _logger.LogError("CreateReferance", "Blog zaten mevcut");
@@ -94,6 +91,13 @@ namespace panelApi.Controllers
         public async Task<IActionResult> GetBlog(int Id)
         {
             var result = await _blogRepo.Get(a => a.Id == Id);
+            if (result == null)
+            {
+                _logger.LogWarning("GetBlog", $"{result.Title} başlıklı {Id} id'li blog bulunamadı.");
+                ModelState.AddModelError("", "Blog not found");
+                return StatusCode(404, ModelState);
+            }
+
             BlogDto blogDto = new();
             blogDto.Content = result.Content;
             blogDto.CreateDate = result.CreateDate;
@@ -104,19 +108,23 @@ namespace panelApi.Controllers
             blogDto.TagNames = null;
             blogDto.Title = result.Title;
             var blogTagResult = await _blogTagRepo.GetIdList(a => a.BlogId == result.Id);
-            if (blogTagResult.Count > 0)
+            if (blogTagResult != null)
             {
-                var tagList = await _tagRepo.GetList(a => blogTagResult.Contains(a.Id));
-                blogDto.TagIds = tagList.Select(a => a.Id).ToList();
-                blogDto.TagNames = tagList.Select(a => a.Name).ToList();
-            }
-            if (result == null)
-            {
-                _logger.LogWarning("GetBlog", $"{blogDto.Title} başlıklı {blogDto.Id} id'li blog bulunamadı.");
-                ModelState.AddModelError("", "Blog not found");
+                _logger.LogWarning("GetBlog", $"{Id} id'li blog a ait taglar bulunamadı.");
+                ModelState.AddModelError("", "BlogTag not found");
                 return StatusCode(404, ModelState);
             }
 
+            var tagList = await _tagRepo.GetList(a => blogTagResult.Contains(a.Id));
+            if (blogTagResult != null)
+            {
+                _logger.LogWarning("GetBlog", $"{result.Title} başlıklı {Id} id'li blog a ait taglar bulunamadı.");
+                ModelState.AddModelError("", "BlogTag not found");
+                return StatusCode(404, ModelState);
+            }
+
+            blogDto.TagIds = tagList.Select(a => a.Id).ToList();
+            blogDto.TagNames = tagList.Select(a => a.Name).ToList();
             return Ok(blogDto);
         }
 
@@ -129,6 +137,13 @@ namespace panelApi.Controllers
         {
             List<BlogDto> blogDtos = new();
             var result = await _blogRepo.GetList();
+            if (result.Count < 0 || blogDtos.Count < 0)
+            {
+                _logger.LogWarning("GetAllBlogs", "Bloglar bulunamadı.");
+                ModelState.AddModelError("", "Blogs not found");
+                return StatusCode(404, ModelState);
+            }
+
             foreach (var item in result)
             {
                 BlogDto blogDto = new();
@@ -141,20 +156,17 @@ namespace panelApi.Controllers
                 blogDto.TagNames = null;
                 blogDto.Title = item.Title;
                 var blogTagResult = await _blogTagRepo.GetIdList(a => a.BlogId == item.Id);
-                if (blogTagResult.Count > 0)
+                if (blogTagResult != null)
                 {
-                    var tagList = await _tagRepo.GetList(a => blogTagResult.Contains(a.Id));
-                    blogDto.TagIds = tagList.Select(a => a.Id).ToList();
-                    blogDto.TagNames = tagList.Select(a => a.Name).ToList();
+                    _logger.LogWarning("GetAllBlogs", "Bloglara ait taglar bulunamadı.");
+                    ModelState.AddModelError("", "BlogTag not found");
+                    return StatusCode(404, ModelState);
                 }
-                blogDtos.Add(blogDto);
-            }
 
-            if (result.Count < 0 || blogDtos.Count < 0)
-            {
-                _logger.LogWarning("GetAllBlogs_BlogController", "Bloglar bulunamadı.");
-                ModelState.AddModelError("", "Blog not found");
-                return StatusCode(404, ModelState);
+                var tagList = await _tagRepo.GetList(a => blogTagResult.Contains(a.Id));
+                blogDto.TagIds = tagList.Select(a => a.Id).ToList();
+                blogDto.TagNames = tagList.Select(a => a.Name).ToList();
+                blogDtos.Add(blogDto);
             }
 
             return Ok(blogDtos);
@@ -193,6 +205,13 @@ namespace panelApi.Controllers
             }
 
             var result = await _blogRepo.Update(blog);
+            if (!result)
+            {
+                _logger.LogError("UpdateBlog_Fail", $"{blogDto.Title} başlıklı blog güncellenirken hata meydana geldi.");
+                ModelState.AddModelError("", "Blog could not updated");
+                return StatusCode(500, ModelState);
+            }
+
             foreach (var item in blogDto.TagIds)
             {
                 BlogTag blogTag = new BlogTag
@@ -204,9 +223,8 @@ namespace panelApi.Controllers
             }
             string filePath = _hostingEnvironment.ContentRootPath + @"\webpImages\" + blogDto.ImageName + ".webp";
             System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(blogDto.ImagePath));
-            if (!result || !isblogTagupdated)
+            if (!isblogTagupdated)
             {
-                _logger.LogError("UpdateBlog_Fail", $"{blogDto.Title} başlıklı blog güncellenirken hata meydana geldi.");
                 _logger.LogError("UpdateBlog_Fail", $"{blogDto.Title} başlıklı blog güncellenirken taglar eklenemedi.");
                 ModelState.AddModelError("", "Blog could not updated");
                 return StatusCode(500, ModelState);
@@ -234,12 +252,16 @@ namespace panelApi.Controllers
             var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + blog.ImagePath;
             System.IO.File.Delete(imgpath);
             var result = await _blogRepo.Delete(blog);
-
-            var blogtag = await _blogTagRepo.RemoveMultiple(Id);
-
-            if (!result || !blogtag)
+            if (!result)
             {
                 _logger.LogError("DeleteBlog_Fail", $"{blog.Title} başlıklı blog silinirken hata oluştu.");
+                ModelState.AddModelError("", "Blog could not deleted");
+                return StatusCode(500, ModelState);
+            }
+
+            var blogtag = await _blogTagRepo.RemoveMultiple(Id);
+            if (!blogtag)
+            {
                 _logger.LogError("DeleteBlog_Fail", $"{blog.Title} başlıklı blogun tagları silinirken hata oluştu..");
                 ModelState.AddModelError("", "Blog could not deleted");
                 return StatusCode(500, ModelState);

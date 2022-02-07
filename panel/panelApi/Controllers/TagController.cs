@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -103,6 +100,7 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "Tag not found");
                 return StatusCode(404, ModelState);
             }
+
             var result = await _tagRepo.Update(tag);
             if (!result)
             {

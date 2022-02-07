@@ -7,8 +7,6 @@ using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -88,7 +86,6 @@ namespace panelApi.Controllers
         public async Task<IActionResult> GetAllSliders()
         {
             var result = await _sliderRepo.GetList();
-
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllSliders_Fail", "Sliderlar bulunamdı.");
@@ -107,7 +104,6 @@ namespace panelApi.Controllers
         public async Task<IActionResult> GetAllSliders(bool isshow)
         {
             var result = await _sliderRepo.GetList(a => a.IsShow == isshow);
-
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllSliders_Fail", "Gösterilecek Sliderlar bulunamdı.");
@@ -155,7 +151,6 @@ namespace panelApi.Controllers
                 SliderName = sliderDto.SliderName
             };
             var result = await _sliderRepo.Update(slider);
-
             if (!result)
             {
                 _logger.LogError("UpdateSlider_Fail", $"{sliderDto.SliderName} isimli Slider güncellenirken hata meydana geldi.");
@@ -176,10 +171,16 @@ namespace panelApi.Controllers
         public async Task<IActionResult> DeleteSlider(int Id)
         {
             var slider = await _sliderRepo.Get(a => a.Id == Id);
+            if (slider == null)
+            {
+                _logger.LogError("DeleteSlider", $"{Id} Id'li Slider bulunamdı.");
+                ModelState.AddModelError("", "Slider could not deleted");
+                return StatusCode(500, ModelState);
+            }
+
             var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + slider.ImageName;
             System.IO.File.Delete(imgpath);
             var result = await _sliderRepo.Delete(slider);
-
             if (!result)
             {
                 _logger.LogError("DeleteSlider", $"{Id} Id'li Slider bulunamdı.");

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using panelApi.DataAccess;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
@@ -12,9 +13,11 @@ namespace panelApi.Repository
 {
     public class SliderRepo : ISliderRepo
     {
+        private readonly ILogger<SliderRepo> _logger;
         private readonly PanelApiDbcontext _panelApiDbcontext;
-        public SliderRepo(PanelApiDbcontext panelApiDbcontext)
+        public SliderRepo(PanelApiDbcontext panelApiDbcontext, ILogger<SliderRepo> logger)
         {
+            _logger = logger;
             _panelApiDbcontext = panelApiDbcontext;
         }
         public async Task<Slider> Create(Slider entity)
@@ -27,7 +30,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("SliderRepo Create", $"{e.Message}");
+                return null;
             }
         }
 
@@ -41,7 +45,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("SliderRepo Delete", $"{e.Message}");
+                return false;
             }
         }
 
@@ -54,7 +59,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("SliderRepo Get", $"{e.Message}");
+                return null;
             }
         }
 
@@ -67,7 +73,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("SliderRepo GetList", $"{e.Message}");
+                return null;
             }
         }
 
@@ -80,8 +87,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-
-                throw new Exception(e.Message);
+                _logger.LogError("SliderRepo IsExist", $"{e.Message}");
+                return false;
             }
         }
 
@@ -95,7 +102,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("SliderRepo Update", $"{e.Message}");
+                return false;
             }
         }
     }

@@ -6,9 +6,6 @@ using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.RepoExtension;
 using panelApi.Repository.IRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using panelApi.DataAccess;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
@@ -12,9 +13,11 @@ namespace panelApi.Repository
 {
     public class ReferanceRepo : IReferanceRepo
     {
+        private readonly ILogger<ReferanceRepo> _logger;
         private readonly PanelApiDbcontext _panelApiDbcontext;
-        public ReferanceRepo(PanelApiDbcontext panelApiDbcontext)
+        public ReferanceRepo(PanelApiDbcontext panelApiDbcontext, ILogger<ReferanceRepo> logger)
         {
+            _logger = logger;
             _panelApiDbcontext = panelApiDbcontext;
         }
         public async Task<Referance> Create(Referance entity)
@@ -27,7 +30,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("ReferanceRepo Create", $"{e.Message}");
+                return null;
             }
         }
 
@@ -41,7 +45,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("ReferanceRepo Delete", $"{e.Message}");
+                return false;
             }
         }
 
@@ -54,7 +59,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("ReferanceRepo Get", $"{e.Message}");
+                return null;
             }
         }
 
@@ -67,7 +73,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("ReferanceRepo GetList", $"{e.Message}");
+                return null;
             }
         }
 
@@ -80,8 +87,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-
-                throw new Exception(e.Message);
+                _logger.LogError("ReferanceRepo IsExist", $"{e.Message}");
+                return false;
             }
         }
 
@@ -95,7 +102,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("ReferanceRepo Update", $"{e.Message}");
+                return false;
             }
         }
     }

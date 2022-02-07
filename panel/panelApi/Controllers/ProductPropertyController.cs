@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -40,6 +37,7 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "ProductProperty already exist");
                 return StatusCode(404, ModelState);
             }
+
             var result = await _productPropertyRepo.Create(productProperty);
             if (result == null)
             {
@@ -103,6 +101,7 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "ProductProperty not found");
                 return StatusCode(404, ModelState);
             }
+
             var result = await _productPropertyRepo.Update(productProperty);
             if (!result)
             {
@@ -131,10 +130,17 @@ namespace panelApi.Controllers
                 return StatusCode(404, ModelState);
             }
             var result = await _productPropertyRepo.Delete(productProperty);
-            var productCategory = _propertyCategoryRepo.RemoveMultiple(Id);
             if (!result)
             {
                 _logger.LogError("DeleteProductProperty_Fail", $"{productProperty.Name} isimli Özellik silinirken hata oluştu.");
+                ModelState.AddModelError("", "ProductProperty could not deleted");
+                return StatusCode(500, ModelState);
+            }
+
+            var productCategory =await _propertyCategoryRepo.RemoveMultiple(Id);
+            if (!productCategory)
+            {
+                _logger.LogError("DeleteProductProperty_Fail", $"{productProperty.Name} isimli Ürün Özellik silinirken hata oluştu.");
                 ModelState.AddModelError("", "ProductProperty could not deleted");
                 return StatusCode(500, ModelState);
             }

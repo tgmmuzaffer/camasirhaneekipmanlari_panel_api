@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using panelApi.DataAccess;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
@@ -12,9 +13,11 @@ namespace panelApi.Repository
 {
     public class BlogTagRepo : IBlogTagRepo
     {
+        private readonly ILogger<BlogTagRepo> _logger;
         private readonly PanelApiDbcontext _panelApiDbcontext;
-        public BlogTagRepo(PanelApiDbcontext panelApiDbcontext)
+        public BlogTagRepo(PanelApiDbcontext panelApiDbcontext, ILogger<BlogTagRepo> logger)
         {
+            _logger = logger;
             _panelApiDbcontext = panelApiDbcontext;
         }
 
@@ -31,7 +34,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("BlogTagRepo AddList", $"{e.Message}");
+                return null;
             }
         }
 
@@ -45,7 +49,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("BlogTagRepo Create", $"{e.Message}");
+                return null;
             }
         }
 
@@ -59,7 +64,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("BlogTagRepo Delete", $"{e.Message}");
+                return false;
             }
         }
 
@@ -72,7 +78,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("BlogTagRepo Get", $"{e.Message}");
+                return null;
             }
         }
 
@@ -87,8 +94,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-
-                throw new Exception(e.Message);
+                _logger.LogError("BlogTagRepo GetIdList", $"{e.Message}");
+                return null;
             }
         }
 
@@ -101,7 +108,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("BlogTagRepo GetList", $"{e.Message}");
+                return null;
             }
         }
 
@@ -114,7 +122,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("BlogTagRepo IsExist", $"{e.Message}");
+                return false;
             }
         }
 
@@ -130,6 +139,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
+                _logger.LogError("BlogTagRepo RemoveMultiple", $"{e.Message}");
                 return false;
             }
         }
@@ -144,7 +154,8 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                _logger.LogError("BlogTagRepo Update", $"{e.Message}");
+                return false;
             }
         }
     }

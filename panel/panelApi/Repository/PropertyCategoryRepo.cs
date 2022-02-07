@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using panelApi.DataAccess;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
@@ -12,50 +13,106 @@ namespace panelApi.Repository
 {
     public class PropertyCategoryRepo : IPropertyCategoryRepo
     {
+        private readonly ILogger<PropertyCategoryRepo> _logger;
         private readonly PanelApiDbcontext _panelApiDbcontext;
-        public PropertyCategoryRepo(PanelApiDbcontext panelApiDbcontext)
+        public PropertyCategoryRepo(PanelApiDbcontext panelApiDbcontext, ILogger<PropertyCategoryRepo> logger)
         {
+            _logger = logger;
             _panelApiDbcontext = panelApiDbcontext;
         }
 
         public async Task<PropertyCategory> Create(PropertyCategory entity)
         {
-            _panelApiDbcontext.PropertyCategories.Add(entity);
-            await _panelApiDbcontext.SaveChangesAsync();
-            return entity;
+            try
+            {
+                _panelApiDbcontext.PropertyCategories.Add(entity);
+                await _panelApiDbcontext.SaveChangesAsync();
+                return entity;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("PropertyCategoryRepo Create", $"{e.Message}");
+                return null;
+            }
+
         }
 
         public async Task<bool> Delete(PropertyCategory entity)
         {
-            _panelApiDbcontext.PropertyCategories.Remove(entity);
-            await _panelApiDbcontext.SaveChangesAsync();
-            return true;
+            try
+            {
+                _panelApiDbcontext.PropertyCategories.Remove(entity);
+                await _panelApiDbcontext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("PropertyCategoryRepo Delete", $"{e.Message}");
+                return false;
+            }
+
         }
 
         public async Task<PropertyCategory> Get(Expression<Func<PropertyCategory, bool>> filter = null)
         {
-            var result = filter != null ? await _panelApiDbcontext.PropertyCategories.Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.PropertyCategories.FirstOrDefaultAsync();
-            return result;
+            try
+            {
+                var result = filter != null ? await _panelApiDbcontext.PropertyCategories.Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.PropertyCategories.FirstOrDefaultAsync();
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("PropertyCategoryRepo Get", $"{e.Message}");
+                return null;
+            }
+
         }
 
         public async Task<List<int>> GetIdList(Expression<Func<PropertyCategory, bool>> filter)
         {
-            var result = filter != null ? 
-                await _panelApiDbcontext.PropertyCategories.Where(filter).Select(a => a.ProductPropertyId).ToListAsync() :
-                await _panelApiDbcontext.PropertyCategories.Select(a => a.ProductPropertyId).ToListAsync();
-            return result;
+            try
+            {
+                var result = filter != null ?
+                              await _panelApiDbcontext.PropertyCategories.Where(filter).Select(a => a.ProductPropertyId).ToListAsync() :
+                              await _panelApiDbcontext.PropertyCategories.Select(a => a.ProductPropertyId).ToListAsync();
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("PropertyCategoryRepo GetIdList", $"{e.Message}");
+                return null;
+            }
+
         }
 
         public async Task<ICollection<PropertyCategory>> GetList(Expression<Func<PropertyCategory, bool>> filter = null)
         {
-            var result = filter != null ? await _panelApiDbcontext.PropertyCategories.Where(filter).ToListAsync() : await _panelApiDbcontext.PropertyCategories.ToListAsync();
-            return result;
+            try
+            {
+                var result = filter != null ? await _panelApiDbcontext.PropertyCategories.Where(filter).ToListAsync() : await _panelApiDbcontext.PropertyCategories.ToListAsync();
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("PropertyCategoryRepo GetList", $"{e.Message}");
+                return null;
+            }
+
         }
 
         public async Task<bool> IsExist(Expression<Func<PropertyCategory, bool>> filter = null)
         {
-            var result = await _panelApiDbcontext.PropertyCategories.AnyAsync(filter);
-            return result;
+            try
+            {
+                var result = await _panelApiDbcontext.PropertyCategories.AnyAsync(filter);
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("PropertyCategoryRepo IsExist", $"{e.Message}");
+                return false;
+            }
+
         }
 
         public async Task<bool> RemoveMultiple(int Id)
@@ -66,19 +123,28 @@ namespace panelApi.Repository
                 _panelApiDbcontext.PropertyCategories.RemoveRange(list);
                 await _panelApiDbcontext.SaveChangesAsync();
                 return true;
-
             }
             catch (Exception e)
             {
+                _logger.LogError("PropertyCategoryRepo RemoveMultiple", $"{e.Message}");
                 return false;
             }
         }
 
         public async Task<bool> Update(PropertyCategory entity)
         {
-            _panelApiDbcontext.PropertyCategories.Update(entity);
-            await _panelApiDbcontext.SaveChangesAsync();
-            return true;
+            try
+            {
+                _panelApiDbcontext.PropertyCategories.Update(entity);
+                await _panelApiDbcontext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("PropertyCategoryRepo Update", $"{e.Message}");
+                return false;
+            }
+
         }
     }
 }
