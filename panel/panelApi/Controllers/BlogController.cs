@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
@@ -10,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Data.Entity;
+using panelApi.Repository;
 
 namespace panelApi.Controllers
 {
@@ -40,7 +43,7 @@ namespace panelApi.Controllers
         [Route("createBlog")]
         public async Task<IActionResult> CreateBlog([FromBody] BlogDto blogDto)
         {
-            var isexist = await _blogRepo.IsExist(a => a.Title == blogDto.Title);
+                var isexist = await _blogRepo.IsExist(a => a.Title == blogDto.Title);
             if (isexist)
             {
                 _logger.LogError("CreateReferance", "Blog zaten mevcut");
