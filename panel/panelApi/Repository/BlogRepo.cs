@@ -33,7 +33,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("BlogRepo Create", $"{e.Message}");
+                _logger.LogError($"BlogRepo Create // {e.Message}");
                 return null;
             }
         }
@@ -48,7 +48,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("BlogRepo Delete", $"{e.Message}");
+                _logger.LogError($"BlogRepo Delete // {e.Message}");
                 return false;
             }
         }
@@ -62,7 +62,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("BlogRepo Get", $"{e.Message}");
+                _logger.LogError($"BlogRepo Get // {e.Message}");
                 return null;
             }
         }
@@ -76,7 +76,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("BlogRepo GetList", $"{e.Message}");
+                _logger.LogError($"BlogRepo GetList // {e.Message}");
                 return null;
             }
         }
@@ -89,7 +89,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("BlogRepo IsExist", $"{e.Message}");
+                _logger.LogError($"BlogRepo IsExist // {e.Message}");
                 return false;
             }
 
@@ -105,7 +105,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("BlogRepo Update", $"{e.Message}");
+                _logger.LogError($"BlogRepo Update // {e.Message}");
                 return false;
             }
         }
@@ -119,7 +119,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("BlogRepo Save", $"{e.Message}");
+                _logger.LogError($"BlogRepo Save // {e.Message}");
                 return false;
             }
         }
@@ -127,31 +127,3 @@ namespace panelApi.Repository
         
     }
 }
-
-
-//using (DbContextTransaction transaction = context.Database.BeginTransaction())
-//{
-//    try
-//    {
-//        var standard = context.Standards.Add(new Standard() { StandardName = "1st Grade" });
-
-//        context.Students.Add(new Student()
-//        {
-//            FirstName = "Rama",
-//            StandardId = standard.StandardId
-//        });
-//        context.SaveChanges();
-//        // throw exectiopn to test roll back transaction
-//        throw new Exception();
-
-//        context.Courses.Add(new Course() { CourseName = "Computer Science" });
-//        context.SaveChanges();
-
-//        transaction.Commit();
-//    }
-//    catch (Exception ex)
-//    {
-//        transaction.Rollback();
-//        Console.WriteLine("Error occurred.");
-//    }
-//}

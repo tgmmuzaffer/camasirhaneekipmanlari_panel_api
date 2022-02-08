@@ -30,7 +30,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("SliderRepo Create", $"{e.Message}");
+                _logger.LogError($"SliderRepo Create // {e.Message}");
                 return null;
             }
         }
@@ -45,7 +45,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("SliderRepo Delete", $"{e.Message}");
+                _logger.LogError($"SliderRepo Delete // {e.Message}");
                 return false;
             }
         }
@@ -59,7 +59,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("SliderRepo Get", $"{e.Message}");
+                _logger.LogError($"SliderRepo Get // {e.Message}");
                 return null;
             }
         }
@@ -73,7 +73,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("SliderRepo GetList", $"{e.Message}");
+                _logger.LogError($"SliderRepo GetList // {e.Message}");
                 return null;
             }
         }
@@ -87,7 +87,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("SliderRepo IsExist", $"{e.Message}");
+                _logger.LogError($"SliderRepo IsExist // {e.Message}");
                 return false;
             }
         }
@@ -102,7 +102,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("SliderRepo Update", $"{e.Message}");
+                _logger.LogError($"SliderRepo Update // {e.Message}");
                 return false;
             }
         }

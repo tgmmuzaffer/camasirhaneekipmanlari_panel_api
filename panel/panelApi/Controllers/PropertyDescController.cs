@@ -33,7 +33,7 @@ namespace panelApi.Controllers
             var isexist = await _propertyDesc.IsExist(a => a.Name == propertyDesc.Name);
             if (isexist)
             {
-                _logger.LogError("CreatePropertyDesc", "ÖzellikAçıklaması zaten mevcut");
+                _logger.LogError("CreatePropertyDesc__ÖzellikAçıklaması zaten mevcut");
                 ModelState.AddModelError("", "PropertyDesc already exist");
                 return StatusCode(404, ModelState);
             }
@@ -41,12 +41,12 @@ namespace panelApi.Controllers
             var result = await _propertyDesc.Create(propertyDesc);
             if (result == null)
             {
-                _logger.LogError("CreatePropertyDesc_Fail", $"{propertyDesc.Name} isimli ÖzellikAçıklaması oluşturulurken hata meydana geldi.");
+                _logger.LogError($"CreatePropertyDesc/Fail__{propertyDesc.Name} isimli ÖzellikAçıklaması oluşturulurken hata meydana geldi.");
                 ModelState.AddModelError("", "PropertyDesc could not created");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("CreatePropertyDesc_Success", $"{propertyDesc.Name} isimli ÖzellikAçıklaması oluşturuldu.");
+            _logger.LogWarning($"CreatePropertyDesc/Success__{propertyDesc.Name} isimli ÖzellikAçıklaması oluşturuldu.");
             return Ok(propertyDesc.Id);
         }
 
@@ -60,7 +60,7 @@ namespace panelApi.Controllers
             var result =await _propertyDesc.Get(a => a.Id == Id);
             if (result == null)
             {
-                _logger.LogError("GetPropertyDesc_Fail", $"{Id} Id'li ÖzellikAçıklaması bulunamdı.");
+                _logger.LogError($"GetPropertyDesc/Fail__{Id} Id'li ÖzellikAçıklaması bulunamdı.");
                 ModelState.AddModelError("", "PropertyDesc not found");
                 return StatusCode(404, ModelState);
             }
@@ -78,7 +78,7 @@ namespace panelApi.Controllers
             var result =await _propertyDesc.GetList();
             if (result.Count<0)
             {
-                _logger.LogError("GetAllPropertyDescs_Fail", "ÖzellikAçıklaması bulunamdı.");
+                _logger.LogError("GetAllPropertyDescs/Fail__ÖzellikAçıklaması bulunamdı.");
                 ModelState.AddModelError("", "PropertyDesc not found");
                 return StatusCode(404, ModelState);
             }
@@ -97,7 +97,7 @@ namespace panelApi.Controllers
             var isexist = await _propertyDesc.IsExist(a => a.Id == propertyDesc.Id);
             if (!isexist)
             {
-                _logger.LogError("UpdatePropertyDesc", $"{propertyDesc.Name} isimli_{propertyDesc.Id} Id'li ÖzellikAçıklaması bulunamdı.");
+                _logger.LogError($"UpdatePropertyDesc__{propertyDesc.Name} isimli_{propertyDesc.Id} Id'li ÖzellikAçıklaması bulunamdı.");
                 ModelState.AddModelError("", "PropertyDesc not found");
                 return StatusCode(404, ModelState);
             }
@@ -105,12 +105,12 @@ namespace panelApi.Controllers
             var result =await _propertyDesc.Update(propertyDesc);
             if (!result)
             {
-                _logger.LogError("UpdatePropertyDesc_Fail", $"{propertyDesc.Name} isimli ÖzellikAçıklaması güncellenirken hata meydana geldi.");
+                _logger.LogError($"UpdatePropertyDesc/Fail__{propertyDesc.Name} isimli ÖzellikAçıklaması güncellenirken hata meydana geldi.");
                 ModelState.AddModelError("", "PropertyDesc could not updated");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("UpdatePropertyDesc_Success", $"{propertyDesc.Name} isimli_{propertyDesc.Id} id'li ÖzellikAçıklaması güncellendi");
+            _logger.LogWarning($"UpdatePropertyDesc/Success__{propertyDesc.Name} isimli_{propertyDesc.Id} id'li ÖzellikAçıklaması güncellendi");
             return NoContent();
         }
 
@@ -125,7 +125,7 @@ namespace panelApi.Controllers
             var propertyDesc =await _propertyDesc.Get(a => a.Id == Id);
             if (propertyDesc==null)
             {
-                _logger.LogError("DeletePropertyDesc", $"{Id} Id'li ÖzellikAçıklaması bulunamdı.");
+                _logger.LogError($"DeletePropertyDesc__{Id} Id'li ÖzellikAçıklaması bulunamdı.");
                 ModelState.AddModelError("", "PropertyDesc not found");
                 return StatusCode(404, ModelState);
             }
@@ -133,12 +133,12 @@ namespace panelApi.Controllers
             var result =await _propertyDesc.Delete(propertyDesc);
             if (!result)
             {
-                _logger.LogError("DeletePropertyDesc_Fail", $"{propertyDesc.Name} isimli ÖzellikAçıklaması silinirken hata oluştu.");
+                _logger.LogError($"DeletePropertyDesc/Fail__{propertyDesc.Name} isimli ÖzellikAçıklaması silinirken hata oluştu.");
                 ModelState.AddModelError("", "PropertyDesc could not deleted");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("DeletePropertyDesc_Success", $"{propertyDesc.Name} isimli ÖzellikAçıklaması silindi.");
+            _logger.LogWarning($"DeletePropertyDesc/Success__{propertyDesc.Name} isimli ÖzellikAçıklaması silindi.");
             return NoContent();
         }
     }

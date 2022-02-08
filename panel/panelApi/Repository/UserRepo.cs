@@ -48,7 +48,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("UserRepo Authenticate", e.Message);
+                _logger.LogError($"UserRepo Authenticate // {e.Message}");
                 return null;
             }
         }
@@ -63,7 +63,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("UserRepo Delete", e.Message);
+                _logger.LogError($"UserRepo Delete // {e.Message}");
                 return false;
             }
         }
@@ -77,7 +77,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("UserRepo Get", e.Message);
+                _logger.LogError($"UserRepo Get // {e.Message}");
                 return null;
             }
         }
@@ -103,7 +103,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("UserRepo GetList", e.Message);
+                _logger.LogError($"UserRepo GetList // {e.Message}");
                 return null;
             }
         }
@@ -121,7 +121,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("UserRepo IsUnique", e.Message);
+                _logger.LogError($"UserRepo IsUnique // {e.Message}");
                 return false;
             }
         }
@@ -139,7 +139,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("UserRepo ", e.Message);
+                _logger.LogError($"UserRepo Register // {e.Message}");
                 return null;
             }
         }
@@ -154,7 +154,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("UserRepo ", e.Message);
+                _logger.LogError($"UserRepo Update // {e.Message}");
                 return false;
             }
         }

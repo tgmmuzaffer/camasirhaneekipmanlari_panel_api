@@ -30,7 +30,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ContactRepo Create", $"{e.Message}");
+                _logger.LogError($"ContactRepo Create // {e.Message}");
                 return null;
             }
 
@@ -46,7 +46,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ContactRepo Delete", $"{e.Message}");
+                _logger.LogError($"ContactRepo Delete // {e.Message}");
                 return false;
             }
 
@@ -61,7 +61,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ContactRepo Get", $"{e.Message}");
+                _logger.LogError($"ContactRepo Get // {e.Message}");
                 return null;
             }
 
@@ -76,7 +76,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ContactRepo GetList", $"{e.Message}");
+                _logger.LogError($"ContactRepo GetList // {e.Message}");
                 return null;
             }
         }
@@ -90,7 +90,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ContactRepo IsExist", $"{e.Message}");
+                _logger.LogError($"ContactRepo IsExist // {e.Message}");
                 return false;
             }
 
@@ -106,7 +106,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ContactRepo Update", $"{e.Message}");
+                _logger.LogError($"ContactRepo Update // {e.Message}");
                 return false;
             }
 

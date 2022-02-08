@@ -31,7 +31,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("PropertyCategoryRepo Create", $"{e.Message}");
+                _logger.LogError($"PropertyCategoryRepo Create // {e.Message}");
                 return null;
             }
 
@@ -47,7 +47,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("PropertyCategoryRepo Delete", $"{e.Message}");
+                _logger.LogError($"PropertyCategoryRepo Delete // {e.Message}");
                 return false;
             }
 
@@ -62,7 +62,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("PropertyCategoryRepo Get", $"{e.Message}");
+                _logger.LogError($"PropertyCategoryRepo Get // {e.Message}");
                 return null;
             }
 
@@ -77,7 +77,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("PropertyCategoryRepo GetList", $"{e.Message}");
+                _logger.LogError($"PropertyCategoryRepo GetList // {e.Message}");
                 return null;
             }
 
@@ -92,7 +92,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("PropertyCategoryRepo IsExist", $"{e.Message}");
+                _logger.LogError($"PropertyCategoryRepo IsExist // {e.Message}");
                 return false;
             }
 
@@ -108,7 +108,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("PropertyCategoryRepo Update", $"{e.Message}");
+                _logger.LogError($"PropertyCategoryRepo Update // {e.Message}");
                 return false;
             }
 

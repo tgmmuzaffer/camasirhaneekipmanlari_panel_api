@@ -39,7 +39,7 @@ namespace panelApi.Controllers
             var isexist = await _categoryRepo.IsExist(a => a.Name == categoryDto.Name);
             if (isexist)
             {
-                _logger.LogError("CreateCategory", "Kategori zaten mevcut");
+                _logger.LogError("CreateCategory__Kategori zaten mevcut", "");
                 ModelState.AddModelError("", "Category already exist");
                 return StatusCode(404, ModelState);
             }
@@ -64,8 +64,8 @@ namespace panelApi.Controllers
 
             if (result == null && isOk == true)
             {
-                _logger.LogError("CreateCategory_Fail", $"{categoryDto.Name} isimli Kategori oluşturulurken hata meydana geldi.");
-                _logger.LogError("CreateCategory_Fail", $"{categoryDto.Name} isimli Kategori oluşturulurken Özellikleri eklenemedi.");
+                _logger.LogError($"CreateCategory/Fail__{categoryDto.Name} isimli Kategori oluşturulurken hata meydana geldi.");
+                _logger.LogError($"CreateCategory/Fail__{categoryDto.Name} isimli Kategori oluşturulurken Özellikleri eklenemedi.");
                 ModelState.AddModelError("", "Category could not created");              
                 return StatusCode(500, ModelState);
             }
@@ -85,7 +85,7 @@ namespace panelApi.Controllers
             var resultPropertyCategory = await _propertyCategoryRepo.GetIdList(b => b.CategoryId == Id);
             if (resultPropertyCategory == null)
             {
-                _logger.LogError("GetCategory_Fail", $"{Id} Id'li Kategori Özelliği bulunamdı.");
+                _logger.LogError($"GetCategory/Fail__{Id} Id'li Kategori Özelliği bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
@@ -93,7 +93,7 @@ namespace panelApi.Controllers
             var productProperties = await _productPropertyRepo.GetNames(d => resultPropertyCategory.Contains(d.Id));
             if (productProperties == null)
             {
-                _logger.LogError("GetCategory_Fail", $"{Id} Id'li Ürün Özelliği bulunamdı.");
+                _logger.LogError( $"GetCategory/Fail__{Id} Id'li Ürün Özelliği bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
@@ -107,7 +107,7 @@ namespace panelApi.Controllers
             };
             if (result == null)
             {
-                _logger.LogError("GetCategory_Fail", $"{Id} Id'li Kategori bulunamdı.");
+                _logger.LogError($"GetCategory/Fail__{Id} Id'li Kategori bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
@@ -125,7 +125,7 @@ namespace panelApi.Controllers
             var result = await _categoryRepo.GetList();
             if (result == null)
             {
-                _logger.LogError("GetAllCategories_Fail", "Kategoriler bulunamdı.");
+                _logger.LogError("GetAllCategories/Fail__Kategoriler bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
@@ -145,7 +145,7 @@ namespace panelApi.Controllers
             var isexist = await _categoryRepo.IsExist(a => a.Id == categoryDto.Id);
             if (!isexist)
             {
-                _logger.LogError("UpdateCategory", $"{categoryDto.Name} isimli_{categoryDto.Id} Id'li Kategori bulunamdı.");
+                _logger.LogError($"UpdateCategory__{categoryDto.Name} isimli_{categoryDto.Id} Id'li Kategori bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
@@ -157,7 +157,7 @@ namespace panelApi.Controllers
             var result = await _categoryRepo.Update(category);
             if (!isexist)
             {
-                _logger.LogError("UpdateCategory_Fail", $"{categoryDto.Name} isimli Kategori güncellenirken hata meydana geldi.");
+                _logger.LogError($"UpdateCategory/Fail__{categoryDto.Name} isimli Kategori güncellenirken hata meydana geldi.");
                 ModelState.AddModelError("", "Category could not updated");
                 return StatusCode(500, ModelState);
             }
@@ -175,12 +175,12 @@ namespace panelApi.Controllers
             }
             if (!result || !isOk)
             {
-                _logger.LogError("UpdateCategory_Fail", $"{categoryDto.Name} isimli Kategori güncellenirken Özellikleri eklenemedi.");
+                _logger.LogError($"UpdateCategory/Fail__{ categoryDto.Name} isimli Kategori güncellenirken Özellikleri eklenemedi.");
                 ModelState.AddModelError("", "Category could not updated");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("UpdateCategory_Success", $"{categoryDto.Name} isimli_{categoryDto.Id} id'li Kategori güncellendi");
+            _logger.LogWarning($"UpdateCategory/Success__{categoryDto.Name} isimli_{categoryDto.Id} id'li Kategori güncellendi.");
             return NoContent();
         }
 
@@ -195,7 +195,7 @@ namespace panelApi.Controllers
             var category = await _categoryRepo.Get(a => a.Id == Id);
             if (category == null)
             {
-                _logger.LogError("DeleteCategory", $"{Id} Id'li Kategori bulunamdı.");
+                _logger.LogError($"DeleteCategory__{Id} Id'li Kategori bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
@@ -203,12 +203,12 @@ namespace panelApi.Controllers
             var result = await _categoryRepo.Delete(category);
             if (!result)
             {
-                _logger.LogError("DeleteCategory_Fail", $"{category.Name} başlıklı Kategori silinirken hata oluştu.");
+                _logger.LogError($"DeleteCategory/Fail__{category.Name} başlıklı Kategori silinirken hata oluştu.");
                 ModelState.AddModelError("", "Category could not deleted");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("DeleteCategory_Success", $"{category.Name} başlıklı Kategori silindi.");
+            _logger.LogWarning($"DeleteCategory/Success__{category.Name} başlıklı Kategori silindi.");
             return NoContent();
         }
     }

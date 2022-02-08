@@ -33,7 +33,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("RoleRepo GetRole", $"{e.Message}");
+                _logger.LogError($"RoleRepo GetRole // {e.Message}");
                 return null;
             }
 
@@ -47,7 +47,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("RoleRepo GetRoles", $"{e.Message}");
+                _logger.LogError($"RoleRepo GetRoles // {e.Message}");
                 return null;
             }
         }

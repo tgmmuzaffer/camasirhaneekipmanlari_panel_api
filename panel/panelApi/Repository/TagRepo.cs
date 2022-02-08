@@ -30,7 +30,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("TagRepo Create", $"{e.Message}");
+                _logger.LogError($"TagRepo Create // {e.Message}");
                 return null;
             }
         }
@@ -45,7 +45,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("TagRepo Delete", $"{e.Message}");
+                _logger.LogError($"TagRepo Delete // {e.Message}");
                 return false;
             }
         }
@@ -59,7 +59,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("TagRepo Get", $"{e.Message}");
+                _logger.LogError($"TagRepo Get // {e.Message}");
                 return null;
             }
         }
@@ -73,7 +73,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("TagRepo GetList", $"{e.Message}");
+                _logger.LogError($"TagRepo GetList // {e.Message}");
                 return null;
             }
         }
@@ -87,7 +87,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("TagRepo IsExist", $"{e.Message}");
+                _logger.LogError($"TagRepo IsExist // {e.Message}");
                 return false;
             }
         }
@@ -102,7 +102,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("TagRepo Update", $"{e.Message}");
+                _logger.LogError($"TagRepo Update // {e.Message}");
                 return false;
             }
         }

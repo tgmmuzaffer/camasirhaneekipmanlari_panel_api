@@ -49,14 +49,14 @@ namespace panelApi.Controllers
             var result = await _sliderRepo.Create(slider);
             if (result == null)
             {
-                _logger.LogError("CreateSlider_Fail", $"{sliderDto.SliderName} isimli Slider oluşturulurken hata meydana geldi.");
+                _logger.LogError($"CreateSlider/Fail__{sliderDto.SliderName} isimli Slider oluşturulurken hata meydana geldi.");
                 ModelState.AddModelError("", "Slider could not created");
                 return StatusCode(500, ModelState);
             }
 
             string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + sliderDto.ImageName;
             System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(sliderDto.ImageData));
-            _logger.LogWarning("CreateSlider_Success", $"{sliderDto.SliderName} isimli Slider oluşturuldu.");
+            _logger.LogWarning($"CreateSlider/Success__{sliderDto.SliderName} isimli Slider oluşturuldu.");
             return Ok(result.Id);
         }
 
@@ -70,7 +70,7 @@ namespace panelApi.Controllers
             var result = await _sliderRepo.Get(a => a.Id == Id);
             if (result == null)
             {
-                _logger.LogError("GetSlider_Fail", $"{Id} Id'li Slider bulunamdı.");
+                _logger.LogError($"GetSlider/Fail__{Id} Id'li Slider bulunamdı.");
                 ModelState.AddModelError("", "Slider not found");
                 return StatusCode(404, ModelState);
             }
@@ -88,7 +88,7 @@ namespace panelApi.Controllers
             var result = await _sliderRepo.GetList();
             if (result.Count < 0)
             {
-                _logger.LogError("GetAllSliders_Fail", "Sliderlar bulunamdı.");
+                _logger.LogError("GetAllSliders/Fail__Sliderlar bulunamdı.");
                 ModelState.AddModelError("", "Sliders not found");
                 return StatusCode(404, ModelState);
             }
@@ -106,7 +106,7 @@ namespace panelApi.Controllers
             var result = await _sliderRepo.GetList(a => a.IsShow == isshow);
             if (result.Count < 0)
             {
-                _logger.LogError("GetAllSliders_Fail", "Gösterilecek Sliderlar bulunamdı.");
+                _logger.LogError("GetAllSliders/Fail__Gösterilecek Sliderlar bulunamdı.");
                 ModelState.AddModelError("", "Sliders not found");
                 return StatusCode(404, ModelState);
             }
@@ -125,7 +125,7 @@ namespace panelApi.Controllers
             var orjSlider = await _sliderRepo.Get(a => a.Id == sliderDto.Id);
             if (orjSlider == null)
             {
-                _logger.LogError("UpdateSlider", $"{sliderDto.SliderName} isimli_{sliderDto.Id} Id'li Slider bulunamdı.");
+                _logger.LogError($"UpdateSlider__{sliderDto.SliderName} isimli_{sliderDto.Id} Id'li Slider bulunamdı.");
                 ModelState.AddModelError("", "Referance not found");
                 return StatusCode(404, ModelState);
             }
@@ -153,12 +153,12 @@ namespace panelApi.Controllers
             var result = await _sliderRepo.Update(slider);
             if (!result)
             {
-                _logger.LogError("UpdateSlider_Fail", $"{sliderDto.SliderName} isimli Slider güncellenirken hata meydana geldi.");
+                _logger.LogError($"UpdateSlider/Fail__{sliderDto.SliderName} isimli Slider güncellenirken hata meydana geldi.");
                 ModelState.AddModelError("", "Slider could not updated");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("UpdateSlider_Success", $"{sliderDto.SliderName} isimli_{sliderDto.Id} id'li Slider güncellendi");
+            _logger.LogWarning($"UpdateSlider/Success__{sliderDto.SliderName} isimli_{sliderDto.Id} id'li Slider güncellendi");
             return NoContent();
         }
 
@@ -173,7 +173,7 @@ namespace panelApi.Controllers
             var slider = await _sliderRepo.Get(a => a.Id == Id);
             if (slider == null)
             {
-                _logger.LogError("DeleteSlider", $"{Id} Id'li Slider bulunamdı.");
+                _logger.LogError($"DeleteSlider__{Id} Id'li Slider bulunamdı.");
                 ModelState.AddModelError("", "Slider could not deleted");
                 return StatusCode(500, ModelState);
             }
@@ -183,12 +183,12 @@ namespace panelApi.Controllers
             var result = await _sliderRepo.Delete(slider);
             if (!result)
             {
-                _logger.LogError("DeleteSlider", $"{Id} Id'li Slider bulunamdı.");
+                _logger.LogError($"DeleteSlider__{Id} Id'li Slider bulunamdı.");
                 ModelState.AddModelError("", "Slider could not deleted");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("DeleteSlider_Success", $"{slider.SliderName} isimli Slider silindi.");
+            _logger.LogWarning($"DeleteSlider/Success__{slider.SliderName} isimli Slider silindi.");
             return NoContent();
         }
     }

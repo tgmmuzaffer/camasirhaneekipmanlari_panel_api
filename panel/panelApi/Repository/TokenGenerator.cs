@@ -54,7 +54,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("TokenGenerator GetToken", $"{e.Message}");
+                _logger.LogError($"TokenGenerator GetToken // {e.Message}");
                 return null;
             }
 

@@ -31,7 +31,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductRepo Create", $"{e.Message}");
+                _logger.LogError($"ProductRepo Create // {e.Message}");
                 return null;
             }
 
@@ -47,7 +47,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductRepo Delete", $"{e.Message}");
+                _logger.LogError($"ProductRepo Delete // {e.Message}");
                 return false;
             }
 
@@ -62,7 +62,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductRepo Get", $"{e.Message}");
+                _logger.LogError($"ProductRepo Get // {e.Message}");
                 return null;
             }
 
@@ -77,7 +77,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductRepo GetList", $"{e.Message}");
+                _logger.LogError($"ProductRepo GetList // {e.Message}");
                 return null;
             }
 
@@ -92,7 +92,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductRepo IsExist", $"{e.Message}");
+                _logger.LogError($"ProductRepo IsExist // {e.Message}");
                 return false;
             }
 
@@ -108,7 +108,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductRepo Update", $"{e.Message}");
+                _logger.LogError($"ProductRepo Update // {e.Message}");
                 return false;
             }
 

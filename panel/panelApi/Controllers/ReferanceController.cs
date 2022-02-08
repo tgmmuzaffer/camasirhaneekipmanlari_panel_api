@@ -37,7 +37,7 @@ namespace panelApi.Controllers
             var isexist = await _referanceRepo.IsExist(a => a.Name == referanceDto.Name);
             if (isexist)
             {
-                _logger.LogError("CreateReferance", "Referans zaten mevcut");
+                _logger.LogError("CreateReferance__Referans zaten mevcut");
                 ModelState.AddModelError("", "Referance already exist");
                 return StatusCode(404, ModelState);
             }
@@ -55,12 +55,12 @@ namespace panelApi.Controllers
             var result = await _referanceRepo.Create(referance);
             if (result == null)
             {
-                _logger.LogError("CreateReferance_Fail", $"{referanceDto.Name} isimli Referans oluşturulurken hata meydana geldi.");
+                _logger.LogError($"CreateReferance/Fail__{referanceDto.Name} isimli Referans oluşturulurken hata meydana geldi.");
                 ModelState.AddModelError("", "Referance could not created");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("CreateReferance_Success", $"{referanceDto.Name} isimli Referans oluşturuldu.");
+            _logger.LogWarning($"CreateReferance/Success__{referanceDto.Name} isimli Referans oluşturuldu.");
             return Ok(referance.Id);
         }
 
@@ -74,7 +74,7 @@ namespace panelApi.Controllers
             var result = await _referanceRepo.Get(a => a.Id == Id);
             if (result == null)
             {
-                _logger.LogError("GetReferance_Fail", $"{Id} Id'li Referans bulunamdı.");
+                _logger.LogError($"GetReferance/Fail__{Id} Id'li Referans bulunamdı.");
                 ModelState.AddModelError("", "Referance not found");
                 return StatusCode(404, ModelState);
             }
@@ -92,7 +92,7 @@ namespace panelApi.Controllers
             var result = await _referanceRepo.GetList();
             if (result.Count < 0)
             {
-                _logger.LogError("GetAllReferances_Fail", "Referanslar bulunamdı.");
+                _logger.LogError("GetAllReferances/Fail__Referanslar bulunamdı.");
                 ModelState.AddModelError("", "Referance not found");
                 return StatusCode(404, ModelState);
             }
@@ -111,7 +111,7 @@ namespace panelApi.Controllers
             var orjreferance = await _referanceRepo.Get(a => a.Id == referanceDto.Id);
             if (orjreferance.Name == null)
             {
-                _logger.LogError("UpdateReferance", $"{referanceDto.Name} isimli_{referanceDto.Id} Id'li Referans bulunamdı.");
+                _logger.LogError($"UpdateReferance__{referanceDto.Name} isimli_{referanceDto.Id} Id'li Referans bulunamdı.");
                 ModelState.AddModelError("", "Referance not found");
                 return StatusCode(404, ModelState);
             }
@@ -133,7 +133,7 @@ namespace panelApi.Controllers
             var result = await _referanceRepo.Update(referance);
             if (!result)
             {
-                _logger.LogError("UpdateReferance_Fail", $"{referanceDto.Name} isimli Referans güncellenirken hata meydana geldi.");
+                _logger.LogError($"UpdateReferance/Fail__{referanceDto.Name} isimli Referans güncellenirken hata meydana geldi.");
                 ModelState.AddModelError("", "Referance could not updated");
                 return StatusCode(500, ModelState);
             }
@@ -141,7 +141,7 @@ namespace panelApi.Controllers
             string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + referanceDto.ImageName;
             System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(referanceDto.ImageData));           
 
-            _logger.LogWarning("UpdateReferance_Success", $"{referanceDto.Name} isimli_{referanceDto.Id} id'li Referans güncellendi");
+            _logger.LogWarning($"UpdateReferance/Success__{referanceDto.Name} isimli_{referanceDto.Id} id'li Referans güncellendi");
             return NoContent();
         }
 
@@ -156,7 +156,7 @@ namespace panelApi.Controllers
             var referance = await _referanceRepo.Get(a => a.Id == Id);
             if (referance == null)
             {
-                _logger.LogError("DeleteReferance", $"{Id} Id'li Referans bulunamdı.");
+                _logger.LogError($"DeleteReferance__{Id} Id'li Referans bulunamdı.");
                 ModelState.AddModelError("", "Referance not found");
                 return StatusCode(404, ModelState);
             }
@@ -166,12 +166,12 @@ namespace panelApi.Controllers
             var result = await _referanceRepo.Delete(referance);
             if (!result)
             {
-                _logger.LogError("DeleteReferance_Fail", $"{referance.Name} isimli Referans silinirken hata oluştu.");
+                _logger.LogError($"DeleteReferance/Fail__{referance.Name} isimli Referans silinirken hata oluştu.");
                 ModelState.AddModelError("", "Referance could not deleted");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("DeleteReferance_Success", $"{referance.Name} isimli Referans silindi.");
+            _logger.LogWarning($"DeleteReferance/Success__{referance.Name} isimli Referans silindi.");
             return NoContent();
         }
     }

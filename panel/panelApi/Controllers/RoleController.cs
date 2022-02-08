@@ -31,7 +31,7 @@ namespace panelApi.Controllers
             var result =await _roleRepo.GetRoles();
             if (result.Count < 0)
             {
-                _logger.LogError("GetAllRoles_Fail", "Roller bulunamdı.");
+                _logger.LogError("GetAllRoles/Fail__Roller bulunamdı.");
                 ModelState.AddModelError("", "Property not found");
                 return StatusCode(404, ModelState);
             }
@@ -49,7 +49,7 @@ namespace panelApi.Controllers
             var result = await _roleRepo.GetRole();
             if (result!=null)
             {
-                _logger.LogError("GetRole_Fail", $"{Id} Id'li Rol bulunamdı.");
+                _logger.LogError($"GetRole/Fail__{Id} Id'li Rol bulunamdı.");
                 ModelState.AddModelError("", "Property not found");
                 return StatusCode(404, ModelState);
             }

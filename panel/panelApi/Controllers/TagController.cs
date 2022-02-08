@@ -32,7 +32,7 @@ namespace panelApi.Controllers
             var isexist = await _tagRepo.IsExist(a => a.Name == tag.Name);
             if (isexist)
             {
-                _logger.LogError("CreateTag", "tag zaten mevcut");
+                _logger.LogError("CreateTag__Tag zaten mevcut");
                 ModelState.AddModelError("", "Tag already exist");
                 return StatusCode(404, ModelState);
             }
@@ -40,12 +40,12 @@ namespace panelApi.Controllers
             var result = await _tagRepo.Create(tag);
             if (result == null)
             {
-                _logger.LogError("CreateTag_Fail", $"{tag.Name} isimli Tag oluşturulurken hata meydana geldi.");
+                _logger.LogError($"CreateTag/Fail__{tag.Name} isimli Tag oluşturulurken hata meydana geldi.");
                 ModelState.AddModelError("", "Tag could not created");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("CreateTag_Success", $"{tag.Name} isimli Tag oluşturuldu.");
+            _logger.LogWarning($"CreateTag/Success__{tag.Name} isimli Tag oluşturuldu.");
             return Ok(tag.Id);
         }
 
@@ -59,7 +59,7 @@ namespace panelApi.Controllers
             var result = await _tagRepo.Get(a => a.Id == Id);
             if (result == null)
             {
-                _logger.LogError("GetTag_Fail", $"{Id} Id'li Tag bulunamdı.");
+                _logger.LogError($"GetTag/Fail__{Id} Id'li Tag bulunamdı.");
                 ModelState.AddModelError("", "Tag not found");
                 return StatusCode(404, ModelState);
             }
@@ -77,7 +77,7 @@ namespace panelApi.Controllers
             var result = await _tagRepo.GetList();
             if (result.Count < 0)
             {
-                _logger.LogError("GetAllTags_Fail", "Taglar bulunamdı.");
+                _logger.LogError("GetAllTag/Fail__Taglar bulunamdı.");
                 ModelState.AddModelError("", "Tag not found");
                 return StatusCode(404, ModelState);
             }
@@ -96,7 +96,7 @@ namespace panelApi.Controllers
             var isexist = await _tagRepo.IsExist(a => a.Id == tag.Id);
             if (!isexist)
             {
-                _logger.LogError("UpdateTag", $"{tag.Name} isimli_{tag.Id} Id'li Tag bulunamdı.");
+                _logger.LogError($"UpdateTag__{tag.Name} isimli_{tag.Id} Id'li Tag bulunamdı.");
                 ModelState.AddModelError("", "Tag not found");
                 return StatusCode(404, ModelState);
             }
@@ -104,12 +104,12 @@ namespace panelApi.Controllers
             var result = await _tagRepo.Update(tag);
             if (!result)
             {
-                _logger.LogError("UpdateTag_Fail", $"{tag.Name} isimli Tag güncellenirken hata meydana geldi.");
+                _logger.LogError($"UpdateTag/Fail__{tag.Name} isimli Tag güncellenirken hata meydana geldi.");
                 ModelState.AddModelError("", "Tag could not updated");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("UpdateTag_Success", $"{tag.Name} isimli_{tag.Id} id'li Tag güncellendi");
+            _logger.LogWarning($"UpdateTag/Success__{tag.Name} isimli_{tag.Id} id'li Tag güncellendi");
             return NoContent();
         }
 
@@ -124,7 +124,7 @@ namespace panelApi.Controllers
             var property = await _tagRepo.Get(a => a.Id == Id);
             if (property == null)
             {
-                _logger.LogError("DeleteTag", $"{Id} Id'li Tag bulunamdı.");
+                _logger.LogError($"DeleteTag__{Id} Id'li Tag bulunamdı.");
                 ModelState.AddModelError("", "Tag not found");
                 return StatusCode(404, ModelState);
             }
@@ -132,12 +132,12 @@ namespace panelApi.Controllers
             var result = await _tagRepo.Delete(property);
             if (!result)
             {
-                _logger.LogError("DeleteTag_Fail", $"{property.Name} isimli Referans silinirken hata oluştu.");
+                _logger.LogError($"DeleteTag/Fail__{property.Name} isimli Referans silinirken hata oluştu.");
                 ModelState.AddModelError("", "Tag could not deleted");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("DeleteTag_Success", $"{property.Name} isimli Referans silindi.");
+            _logger.LogWarning($"DeleteTag/Success__{property.Name} isimli Referans silindi.");
             return NoContent();
         }
 

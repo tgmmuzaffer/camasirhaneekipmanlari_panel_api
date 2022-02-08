@@ -30,7 +30,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductPropertyRepo Create", $"{e.Message}");
+                _logger.LogError($"ProductPropertyRepo Create // {e.Message}");
                 return null;
             }
         }
@@ -45,7 +45,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductPropertyRepo Delete", $"{e.Message}");
+                _logger.LogError($"ProductPropertyRepo Delete // {e.Message}");
                 return false;
             }
 
@@ -60,7 +60,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductPropertyRepo Get", $"{e.Message}");
+                _logger.LogError($"ProductPropertyRepo Get // {e.Message}");
                 return null;
             }
 
@@ -75,7 +75,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductPropertyRepo GetList", $"{e.Message}");
+                _logger.LogError($"ProductPropertyRepo GetList // {e.Message}");
                 return null;
             }
 
@@ -90,7 +90,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductPropertyRepo GetList", $"{e.Message}");
+                _logger.LogError($"ProductPropertyRepo GetList // {e.Message}");
                 return null;
             }
         }
@@ -104,7 +104,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductPropertyRepo IsExist", $"{e.Message}");
+                _logger.LogError($"ProductPropertyRepo IsExist // {e.Message}");
                 return false;
             }
 
@@ -120,7 +120,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("ProductPropertyRepo Update", $"{e.Message}");
+                _logger.LogError($"ProductPropertyRepo Update // {e.Message}");
                 return false;
             }
 
