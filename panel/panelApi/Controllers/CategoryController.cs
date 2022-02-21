@@ -14,15 +14,11 @@ namespace panelApi.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryRepo _categoryRepo;
-        private readonly IPropertyCategoryRepo _propertyCategoryRepo;
-        private readonly IProductPropertyRepo _productPropertyRepo;
         private readonly ILogger<CategoryController> _logger;
 
-        public CategoryController(ICategoryRepo categoryRepo, IPropertyCategoryRepo propertyCategoryRepo, IProductPropertyRepo productPropertyRepo, ILogger<CategoryController> logger)
+        public CategoryController(ICategoryRepo categoryRepo, ILogger<CategoryController> logger)
         {
             _categoryRepo = categoryRepo;
-            _propertyCategoryRepo = propertyCategoryRepo;
-            _productPropertyRepo = productPropertyRepo;
             _logger = logger;
         }
 
@@ -50,17 +46,17 @@ namespace panelApi.Controllers
                 Name = categoryDto.Name
             };
             var result = await _categoryRepo.Create(category);
-            for (int i = 0; i < categoryDto.ProductPropertyIds.Count; i++)
-            {
-                PropertyCategory propertyCategory = new PropertyCategory()
-                {
-                    CategoryId = result.Id,
-                    ProductPropertyId = categoryDto.ProductPropertyIds[i]
-                };
+            //for (int i = 0; i < categoryDto.ProductPropertyIds.Count; i++)
+            //{
+            //    PropertyCategory propertyCategory = new PropertyCategory()
+            //    {
+            //        CategoryId = result.Id,
+            //        ProductPropertyId = categoryDto.ProductPropertyIds[i]
+            //    };
 
-                var res = await _propertyCategoryRepo.Create(propertyCategory);
-                isOk = res == null ? false : true;
-            }
+            //    var res = await _propertyCategoryRepo.Create(propertyCategory);
+            //    isOk = res == null ? false : true;
+            //}
 
             if (result == null && isOk == true)
             {
@@ -82,29 +78,29 @@ namespace panelApi.Controllers
         public async Task<IActionResult> GetCategory(int Id)
         {
             var result = await _categoryRepo.Get(a => a.Id == Id);
-            var resultPropertyCategory = await _propertyCategoryRepo.GetIdList(b => b.CategoryId == Id);
-            if (resultPropertyCategory == null)
-            {
-                _logger.LogError($"GetCategory/Fail__{Id} Id'li Kategori Özelliği bulunamdı.");
-                ModelState.AddModelError("", "Category not found");
-                return StatusCode(404, ModelState);
-            }
+            //var resultPropertyCategory = await _propertyCategoryRepo.GetIdList(b => b.CategoryId == Id);
+            //if (resultPropertyCategory == null)
+            //{
+            //    _logger.LogError($"GetCategory/Fail__{Id} Id'li Kategori Özelliği bulunamdı.");
+            //    ModelState.AddModelError("", "Category not found");
+            //    return StatusCode(404, ModelState);
+            //}
 
-            var productProperties = await _productPropertyRepo.GetNames(d => resultPropertyCategory.Contains(d.Id));
-            if (productProperties == null)
-            {
-                _logger.LogError( $"GetCategory/Fail__{Id} Id'li Ürün Özelliği bulunamdı.");
-                ModelState.AddModelError("", "Category not found");
-                return StatusCode(404, ModelState);
-            }
+            //var productProperties = await _productPropertyRepo.GetNames(d => resultPropertyCategory.Contains(d.Id));
+            //if (productProperties == null)
+            //{
+            //    _logger.LogError( $"GetCategory/Fail__{Id} Id'li Ürün Özelliği bulunamdı.");
+            //    ModelState.AddModelError("", "Category not found");
+            //    return StatusCode(404, ModelState);
+            //}
 
-            CategoryDto categoryDto = new()
-            {
-                Id = result.Id,
-                Name = result.Name,
-                ProductPropertyNames = productProperties,
-                ProductPropertyIds= resultPropertyCategory
-            };
+            //CategoryDto categoryDto = new()
+            //{
+            //    Id = result.Id,
+            //    Name = result.Name,
+            //    ProductPropertyNames = productProperties,
+            //    ProductPropertyIds= resultPropertyCategory
+            //};
             if (result == null)
             {
                 _logger.LogError($"GetCategory/Fail__{Id} Id'li Kategori bulunamdı.");
@@ -112,7 +108,7 @@ namespace panelApi.Controllers
                 return StatusCode(404, ModelState);
             }
 
-            return Ok(categoryDto);
+            return Ok(result);
         }
 
         [AllowAnonymous]
@@ -139,48 +135,48 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("updateCategory")]
-        public async Task<IActionResult> UpdateCategory([FromBody] CategoryDto categoryDto)
+        public async Task<IActionResult> UpdateCategory([FromBody] Category category)
         {
             bool isOk = true;
-            var isexist = await _categoryRepo.IsExist(a => a.Id == categoryDto.Id);
+            var isexist = await _categoryRepo.IsExist(a => a.Id == category.Id);
             if (!isexist)
             {
-                _logger.LogError($"UpdateCategory__{categoryDto.Name} isimli_{categoryDto.Id} Id'li Kategori bulunamdı.");
+                _logger.LogError($"UpdateCategory__{category.Name} isimli_{category.Id} Id'li Kategori bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
-            Category category = new Category()
-            {
-                Id = categoryDto.Id,
-                Name = categoryDto.Name
-            };
+            //Category category = new Category()
+            //{
+            //    Id = categoryDto.Id,
+            //    Name = categoryDto.Name
+            //};
             var result = await _categoryRepo.Update(category);
-            if (!isexist)
+            if (!result)
             {
-                _logger.LogError($"UpdateCategory/Fail__{categoryDto.Name} isimli Kategori güncellenirken hata meydana geldi.");
+                _logger.LogError($"UpdateCategory/Fail__{category.Name} isimli Kategori güncellenirken hata meydana geldi.");
                 ModelState.AddModelError("", "Category could not updated");
                 return StatusCode(500, ModelState);
             }
 
-            for (int i = 0; i < categoryDto.ProductPropertyIds.Count; i++)
-            {
-                PropertyCategory propertyCategory = new PropertyCategory()
-                {
-                    CategoryId = categoryDto.Id,
-                    ProductPropertyId = categoryDto.ProductPropertyIds[i]
-                };
+            //for (int i = 0; i < categoryDto.ProductPropertyIds.Count; i++)
+            //{
+            //    PropertyCategory propertyCategory = new PropertyCategory()
+            //    {
+            //        CategoryId = categoryDto.Id,
+            //        ProductPropertyId = categoryDto.ProductPropertyIds[i]
+            //    };
 
-                var res = await _propertyCategoryRepo.Update(propertyCategory);
-                isOk = res == false ? false : true;
-            }
-            if (!result || !isOk)
-            {
-                _logger.LogError($"UpdateCategory/Fail__{ categoryDto.Name} isimli Kategori güncellenirken Özellikleri eklenemedi.");
-                ModelState.AddModelError("", "Category could not updated");
-                return StatusCode(500, ModelState);
-            }
+            //    var res = await _propertyCategoryRepo.Update(propertyCategory);
+            //    isOk = res == false ? false : true;
+            //}
+            //if (!result || !isOk)
+            //{
+            //    _logger.LogError($"UpdateCategory/Fail__{ categoryDto.Name} isimli Kategori güncellenirken Özellikleri eklenemedi.");
+            //    ModelState.AddModelError("", "Category could not updated");
+            //    return StatusCode(500, ModelState);
+            //}
 
-            _logger.LogWarning($"UpdateCategory/Success__{categoryDto.Name} isimli_{categoryDto.Id} id'li Kategori güncellendi.");
+            _logger.LogWarning($"UpdateCategory/Success__{category.Name} isimli_{category.Id} id'li Kategori güncellendi.");
             return NoContent();
         }
 

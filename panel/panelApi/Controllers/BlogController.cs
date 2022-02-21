@@ -17,13 +17,13 @@ namespace panelApi.Controllers
     [ApiController]
     public class BlogController : ControllerBase
     {
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IBlogRepo _blogRepo;
         private readonly IBlogTagRepo _blogTagRepo;
         private readonly ITagRepo _tagRepo;
         private readonly ILogger<BlogController> _logger;
 
-        public BlogController(IBlogRepo blogRepo, IHostingEnvironment hostingEnvironment, IBlogTagRepo blogTagRepo, ITagRepo tagRepo, ILogger<BlogController> logger)
+        public BlogController(IBlogRepo blogRepo, IWebHostEnvironment hostingEnvironment, IBlogTagRepo blogTagRepo, ITagRepo tagRepo, ILogger<BlogController> logger)
         {
             _blogRepo = blogRepo;
             _hostingEnvironment = hostingEnvironment;

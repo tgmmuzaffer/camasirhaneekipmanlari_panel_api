@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
@@ -16,12 +17,26 @@ namespace panelApi.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductRepo _productRepo;
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IFeatureRepo _featureRepo;
+        private readonly IFeatureDescriptionRepo _featureDescriptionRepo;
+        private readonly IPr_Fe_RelRepo _pr_Fe_RelRepo;
+        private readonly IPr_FeDesc_RelRepo _pr_FeDesc_RelRepo;
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly ILogger<ProductController> _logger;
 
-        public ProductController(IProductRepo productRepo, IHostingEnvironment hostingEnvironment, ILogger<ProductController> logger)
+        public ProductController(IProductRepo productRepo, 
+            IFeatureRepo featureRepo, 
+            IPr_Fe_RelRepo pr_Fe_RelRepo, 
+            IPr_FeDesc_RelRepo pr_FeDesc_RelRepo,
+            IFeatureDescriptionRepo featureDescriptionRepo,
+            IWebHostEnvironment hostingEnvironment, 
+            ILogger<ProductController> logger)
         {
             _productRepo = productRepo;
+            _featureRepo = featureRepo;
+            _featureDescriptionRepo = featureDescriptionRepo;
+            _pr_Fe_RelRepo = pr_Fe_RelRepo;
+            _pr_FeDesc_RelRepo = pr_FeDesc_RelRepo;
             _hostingEnvironment = hostingEnvironment;
             _logger = logger;
         }
@@ -32,34 +47,27 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize]
         [Route("createProduct")]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductDto productDto)
+        public async Task<IActionResult> CreateProduct([FromBody] Product product)
         {
-            Product product = new Product();
-            var isexist = await _productRepo.IsExist(a => a.Name == productDto.Name);
+            var isexist = await _productRepo.IsExist(a => a.Name == product.Name);
             if (isexist)
             {
                 _logger.LogError("CreateProduct__Ürün zaten mevcut");
                 ModelState.AddModelError("", "Product already exist");
                 return StatusCode(404, ModelState);
             }
-            string filePath = _hostingEnvironment.ContentRootPath +"\\webpImages\\" + productDto.ImageName + ".webp";
-            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(productDto.ImagePath));
-            product.CreateDate = productDto.CreateDate;
-            product.Description = productDto.Description;
-            product.IsPublish = productDto.IsPublish;
-            product.Name = productDto.Name;
-            product.ShortDesc = productDto.ShortDesc;
-            product.ImagePath = productDto.ImageName + ".webp";
-            product.CategoryId = productDto.CategoryId;
+            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + product.ImageName + ".webp";
+            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(product.ImagePath));
+            product.ImagePath = product.ImageName + ".webp";
             var result = await _productRepo.Create(product);
             if (result == null)
             {
-                _logger.LogError($"CreateProduct/Fail__{productDto.Name} isimli Ürün oluşturulurken hata meydana geldi.");
+                _logger.LogError($"CreateProduct/Fail__{product.Name} isimli Ürün oluşturulurken hata meydana geldi.");
                 ModelState.AddModelError("", "Product could not created");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning($"CreateProduct/Success__{productDto.Name} isimli Ürün oluşturuldu.");
+            _logger.LogWarning($"CreateProduct/Success__{product.Name} isimli Ürün oluşturuldu.");
             return Ok(product.Id);
         }
 
@@ -78,6 +86,10 @@ namespace panelApi.Controllers
                 return StatusCode(404, ModelState);
             }
 
+            var feature_Rel = await _pr_Fe_RelRepo.GetFetureIdList(a => a.ProductId == result.Id);
+            result.Feature = await _featureRepo.GetList(a => feature_Rel.Contains(a.Id));
+            var featureDesc = await _pr_FeDesc_RelRepo.GetFeatureDescIdList(a => a.ProductId == result.Id);
+            result.FeatureDescriptions = await _featureDescriptionRepo.GetList(a => featureDesc.Contains(a.Id));
             return Ok(result);
         }
 
@@ -89,6 +101,16 @@ namespace panelApi.Controllers
         public async Task<IActionResult> GetAllProducts()
         {
             var result = await _productRepo.GetList();
+            foreach (var item in result)
+            {
+                item.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == item.Id);
+                var feature_IdList = await _pr_Fe_RelRepo.GetFetureIdList(a => a.ProductId == item.Id);
+                item.Pr_FeDesc_Relationals = await _pr_FeDesc_RelRepo.GetList(a => a.ProductId == item.Id);
+                var featureDesc_IdList = await _pr_FeDesc_RelRepo.GetFeatureDescIdList(a => a.ProductId == item.Id);
+
+                item.Feature = await _featureRepo.GetList(s => feature_IdList.Contains(s.Id));
+                item.FeatureDescriptions = await _featureDescriptionRepo.GetList(f => featureDesc_IdList.Contains(f.Id));
+            }
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllProducts/Fail__Ürünler bulunamdı.", "");
@@ -105,46 +127,41 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("updateProduct")]
-        public async Task<IActionResult> UpdateProduct([FromBody] ProductDto productDto)
+        public async Task<IActionResult> UpdateProduct([FromBody] Product product)
         {
-            var orjprod = await _productRepo.Get(a => a.Id == productDto.Id);
+            var orjprod = await _productRepo.Get(a => a.Id == product.Id);
             if (orjprod.Name == null)
             {
-                _logger.LogError($"UpdateProduct__{productDto.Name} isimli_{productDto.Id} Id'li Ürün bulunamdı.");
+                _logger.LogError($"UpdateProduct__{product.Name} isimli_{product.Id} Id'li Ürün bulunamdı.");
                 ModelState.AddModelError("", "Product not found");
                 return StatusCode(404, ModelState);
             }
 
-            Product product = new()
-            {
-                CategoryId = productDto.CategoryId,
-                CreateDate = productDto.CreateDate,
-                Description = productDto.Description,
-                Id = productDto.Id,
-                ImagePath = productDto.ImageName + ".webp",
-                IsPublish = productDto.IsPublish,
-                Name = productDto.Name,
-                ShortDesc = productDto.ShortDesc
-            };
+            product.ImagePath = product.ImageName + ".webp";
             if (product.ImagePath != orjprod.ImagePath)
             {
                 var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + orjprod.ImagePath;
                 System.IO.File.Delete(imgpath);
             }
-            
+
+            if(product.Feature!=null  && product.FeatureDescriptions != null )
+            {
+                product.Pr_FeDesc_Relationals = await _pr_FeDesc_RelRepo.GetList(a => a.ProductId == product.Id);
+                product.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == product.Id);
+            }
+
             var result = await _productRepo.Update(product);
-            var t = 0;
-            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + productDto.ImageName + ".webp";
-            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(productDto.ImagePath));
+            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + product.ImageName + ".webp";
+            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(product.ImagePath));
 
             if (!result)
             {
-                _logger.LogError($"UpdateProduct/Fail__{productDto.Name} isimli Ürün güncellenirken hata meydana geldi.");
+                _logger.LogError($"UpdateProduct/Fail__{product.Name} isimli Ürün güncellenirken hata meydana geldi.");
                 ModelState.AddModelError("", "Product could not updated");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning($"UpdateProduct/Success__{productDto.Name} isimli_{productDto.Id} id'li Ürün güncellendi");
+            _logger.LogWarning($"UpdateProduct/Success__{product.Name} isimli_{product.Id} id'li Ürün güncellendi");
             return NoContent();
         }
 
@@ -165,6 +182,9 @@ namespace panelApi.Controllers
             }
 
             var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + product.ImagePath;
+
+            product.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == product.Id);
+            product.Pr_FeDesc_Relationals = await _pr_FeDesc_RelRepo.GetList(a => a.ProductId == product.Id);
             System.IO.File.Delete(imgpath);
             var result = await _productRepo.Delete(product);
             if (!result)

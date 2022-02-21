@@ -54,7 +54,7 @@ namespace panelApi.Repository
         {
             try
             {
-                var result = filter != null ? await _panelApiDbcontext.Categories.Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.Categories.FirstOrDefaultAsync();
+                var result = filter != null ? await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).FirstOrDefaultAsync();
                 return result;
             }
             catch (Exception e)
@@ -68,7 +68,7 @@ namespace panelApi.Repository
         {
             try
             {
-                var result = filter != null ? await _panelApiDbcontext.Categories.Where(filter).ToListAsync() : await _panelApiDbcontext.Categories.ToListAsync();
+                var result = filter != null ? await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).Where(filter).ToListAsync() : await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).ToListAsync();
                 return result;
             }
             catch (Exception e)

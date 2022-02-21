@@ -14,14 +14,20 @@ namespace panelApi.DataAccess
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
-        public virtual DbSet<ProductProperty> ProductProperties { get; set; }
-        public virtual DbSet<PropertyDescription> PropertyDescriptions { get; set; }
-        public virtual DbSet<PropertyCategory> PropertyCategories { get; set; }
+        public virtual DbSet<FeatureDescription> FeatureDescriptions { get; set; }
+        public virtual DbSet<Feature> Features { get; set; }
+        public virtual DbSet<SubCategory> SubCategories { get; set; }
+        //public virtual DbSet<ProductProperty> ProductProperties { get; set; }
+        //public virtual DbSet<PropertyDescription> PropertyDescriptions { get; set; }
+        //public virtual DbSet<PropertyCategory> PropertyCategories { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<Blog> Blogs { get; set; } 
         public virtual DbSet<BlogTag> BlogTags { get; set; }
         public virtual DbSet<Slider> Sliders { get; set; }
         public virtual DbSet<Referance> Referances{ get; set; }
+        public virtual DbSet<Pr_Fe_Relational> Pr_Fe_Relationals{ get; set; }
+        public virtual DbSet<Pr_FeDesc_Relational> Pr_FeDesc_Relationals{ get; set; }
+        public virtual DbSet<Fe_SubCat_Relational> Fe_SubCat_Relationals{ get; set; }
     }
 }

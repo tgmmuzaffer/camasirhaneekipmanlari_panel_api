@@ -16,10 +16,10 @@ namespace panelApi.Controllers
     public class SliderController : ControllerBase
     {
         private readonly ISliderRepo _sliderRepo;
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly ILogger<SliderController> _logger;
 
-        public SliderController(ISliderRepo sliderRepo, IHostingEnvironment hostingEnvironment, ILogger<SliderController> logger)
+        public SliderController(ISliderRepo sliderRepo, IWebHostEnvironment hostingEnvironment, ILogger<SliderController> logger)
         {
             _sliderRepo = sliderRepo;
             _hostingEnvironment = hostingEnvironment;

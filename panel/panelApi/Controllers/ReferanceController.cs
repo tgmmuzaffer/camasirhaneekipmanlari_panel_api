@@ -15,11 +15,11 @@ namespace panelApi.Controllers
     [ApiController]
     public class ReferanceController : ControllerBase
     {
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IReferanceRepo _referanceRepo;
         private readonly ILogger<ReferanceController> _logger;
 
-        public ReferanceController(IReferanceRepo referanceRepo, IHostingEnvironment hostingEnvironment, ILogger<ReferanceController> logger)
+        public ReferanceController(IReferanceRepo referanceRepo, IWebHostEnvironment hostingEnvironment, ILogger<ReferanceController> logger)
         {
             _referanceRepo = referanceRepo;
             _hostingEnvironment = hostingEnvironment;

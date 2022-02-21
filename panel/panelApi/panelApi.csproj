@@ -5,6 +5,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\ProductPropertyController.cs" />
+    <Compile Remove="Controllers\PropertyDescController.cs" />
+    <Compile Remove="Models\ProductProperty.cs" />
+    <Compile Remove="Models\PropertyCategory.cs" />
+    <Compile Remove="Models\PropertyDescription.cs" />
+    <Compile Remove="Repository\IRepository\IProductPropertyRepo.cs" />
+    <Compile Remove="Repository\IRepository\IPropertyCategoryRepo.cs" />
+    <Compile Remove="Repository\IRepository\IPropertyDesRepo.cs" />
+    <Compile Remove="Repository\ProductPropertyRepo.cs" />
+    <Compile Remove="Repository\PropertyCategoryRepo.cs" />
+    <Compile Remove="Repository\PropertyDescRepo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.12" />
@@ -13,6 +27,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.12">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.15.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
@@ -22,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Migrations\" />
     <Folder Include="webpImages\" />
   </ItemGroup>
 
