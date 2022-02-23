@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -8,8 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using panelApi.Middleware;
 using panelApi.RepoExtension;
+using panelApi.Repository.IRepository;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
 namespace panelApi
@@ -97,7 +101,7 @@ namespace panelApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogRepo logRepo)
         {
             if (env.IsDevelopment())
             {
@@ -106,6 +110,8 @@ namespace panelApi
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "panelApi v1"));
             }
 
+            app.ConfigureExceptionMiddleware();
+            //app.UseExceptionHandler();
             app.UseSwagger();
             app.UseHttpsRedirection();
             app.UseStaticFiles();

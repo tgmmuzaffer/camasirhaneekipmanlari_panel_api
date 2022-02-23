@@ -36,6 +36,7 @@ namespace panelApi.RepoExtension
             services.AddScoped<IPr_FeDesc_RelRepo, Pr_FeDesc_RelRepo>();
             services.AddScoped<IPr_Fe_RelRepo, Pr_Fe_RelRepo>();
             services.AddScoped<IFe_SubCat_RelRepo, Fe_SubCat_RelRepo>();
+            services.AddScoped<ILogRepo, LogRepo>();
 
 
         }

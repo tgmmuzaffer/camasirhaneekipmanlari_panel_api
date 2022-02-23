@@ -10,8 +10,8 @@ using panelApi.DataAccess;
 namespace panelApi.Migrations
 {
     [DbContext(typeof(PanelApiDbcontext))]
-    [Migration("20220216144818_init")]
-    partial class init
+    [Migration("20220221145426_init1")]
+    partial class init1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -139,10 +139,10 @@ namespace panelApi.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("FeatureId")
+                    b.Property<int>("FeatureId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SubCategoryId")
+                    b.Property<int>("SubCategoryId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -222,7 +222,7 @@ namespace panelApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Fe_SubCatRelationals");
+                    b.ToTable("Pr_Fe_Relationals");
                 });
 
             modelBuilder.Entity("panelApi.Models.Product", b =>
@@ -261,57 +261,6 @@ namespace panelApi.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("panelApi.Models.ProductProperty", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProductProperties");
-                });
-
-            modelBuilder.Entity("panelApi.Models.PropertyCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductPropertyId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PropertyCategories");
-                });
-
-            modelBuilder.Entity("panelApi.Models.PropertyDescription", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProductPropertyId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PropertyDescriptions");
                 });
 
             modelBuilder.Entity("panelApi.Models.Referance", b =>
@@ -470,11 +419,15 @@ namespace panelApi.Migrations
                 {
                     b.HasOne("panelApi.Models.Feature", "Feature")
                         .WithMany()
-                        .HasForeignKey("FeatureId");
+                        .HasForeignKey("FeatureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("panelApi.Models.SubCategory", "SubCategory")
                         .WithMany()
-                        .HasForeignKey("SubCategoryId");
+                        .HasForeignKey("SubCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Feature");
 

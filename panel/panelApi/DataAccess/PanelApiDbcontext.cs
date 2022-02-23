@@ -29,5 +29,6 @@ namespace panelApi.DataAccess
         public virtual DbSet<Pr_Fe_Relational> Pr_Fe_Relationals{ get; set; }
         public virtual DbSet<Pr_FeDesc_Relational> Pr_FeDesc_Relationals{ get; set; }
         public virtual DbSet<Fe_SubCat_Relational> Fe_SubCat_Relationals{ get; set; }
+        public virtual DbSet<Log> Logs{ get; set; }
     }
 }

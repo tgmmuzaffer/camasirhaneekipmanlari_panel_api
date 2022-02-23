@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\GlobalErrorsController.cs" />
     <Compile Remove="Controllers\ProductPropertyController.cs" />
     <Compile Remove="Controllers\PropertyDescController.cs" />
     <Compile Remove="Models\ProductProperty.cs" />

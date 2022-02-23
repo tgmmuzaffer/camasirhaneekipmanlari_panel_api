@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace panelApi.Migrations
 {
-    public partial class init : Migration
+    public partial class init1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -110,47 +110,6 @@ namespace panelApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pr_FeDesc_Relationals", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductProperties",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductProperties", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PropertyCategories",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
-                    ProductPropertyId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PropertyCategories", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PropertyDescriptions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductPropertyId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PropertyDescriptions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -304,8 +263,8 @@ namespace panelApi.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SubCategoryId = table.Column<int>(type: "int", nullable: true),
-                    FeatureId = table.Column<int>(type: "int", nullable: true)
+                    SubCategoryId = table.Column<int>(type: "int", nullable: false),
+                    FeatureId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -315,13 +274,13 @@ namespace panelApi.Migrations
                         column: x => x.FeatureId,
                         principalTable: "Features",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Fe_SubCat_Relationals_SubCategories_SubCategoryId",
                         column: x => x.SubCategoryId,
                         principalTable: "SubCategories",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -406,16 +365,7 @@ namespace panelApi.Migrations
                 name: "Pr_FeDesc_Relationals");
 
             migrationBuilder.DropTable(
-                name: "ProductProperties");
-
-            migrationBuilder.DropTable(
                 name: "Products");
-
-            migrationBuilder.DropTable(
-                name: "PropertyCategories");
-
-            migrationBuilder.DropTable(
-                name: "PropertyDescriptions");
 
             migrationBuilder.DropTable(
                 name: "Referances");
