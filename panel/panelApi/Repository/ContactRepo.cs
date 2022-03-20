@@ -67,7 +67,7 @@ namespace panelApi.Repository
 
         }
 
-        public async Task<ICollection<Contact>> GetList(Expression<Func<Contact, bool>> filter = null)
+        public async Task<List<Contact>> GetList(Expression<Func<Contact, bool>> filter = null)
         {
             try
             {

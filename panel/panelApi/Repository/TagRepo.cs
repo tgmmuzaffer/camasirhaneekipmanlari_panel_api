@@ -64,7 +64,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<Tag>> GetList(Expression<Func<Tag, bool>> filter = null)
+        public async Task<List<Tag>> GetList(Expression<Func<Tag, bool>> filter = null)
         {
             try
             {

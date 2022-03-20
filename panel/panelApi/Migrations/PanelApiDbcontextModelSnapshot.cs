@@ -34,6 +34,42 @@ namespace panelApi.Migrations
                     b.ToTable("FeatureSubCategory");
                 });
 
+            modelBuilder.Entity("panelApi.Models.AboutUs", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Content1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Content2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Content3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagePath1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagePath2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagePath3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubTitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AboutUs");
+                });
+
             modelBuilder.Entity("panelApi.Models.Blog", b =>
                 {
                     b.Property<int>("Id")
@@ -79,6 +115,42 @@ namespace panelApi.Migrations
                     b.ToTable("BlogTags");
                 });
 
+            modelBuilder.Entity("panelApi.Models.Cat_FeDesc_Realational", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FeatureDescriptionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cat_FeDesc_Realationals");
+                });
+
+            modelBuilder.Entity("panelApi.Models.Cat_Fe_Relational", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FeatureId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cat_Fe_Relatianals");
+                });
+
             modelBuilder.Entity("panelApi.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -86,7 +158,13 @@ namespace panelApi.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShortDesc")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -104,7 +182,19 @@ namespace panelApi.Migrations
                     b.Property<string>("Adress")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ContactContent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContactTitle")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InstagramAccount")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LinkedInAccount")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MapAdress")
@@ -119,10 +209,25 @@ namespace panelApi.Migrations
                     b.Property<string>("Phone2")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("TwitterAccount")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WorkDay1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WorkDay2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WorkDay3")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("WorkHour1")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("WorkHour2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WorkHour3")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -185,36 +290,6 @@ namespace panelApi.Migrations
                     b.HasIndex("FeatureId");
 
                     b.ToTable("FeatureDescriptions");
-                });
-
-            modelBuilder.Entity("panelApi.Models.Log", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Exception")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Level")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MessageTemplate")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Properties")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("TimeStamp")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("panelApi.Models.Pr_FeDesc_Relational", b =>

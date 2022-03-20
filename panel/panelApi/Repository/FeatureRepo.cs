@@ -39,15 +39,58 @@ namespace panelApi.Repository
 
         public async Task<bool> Delete(Feature entity)
         {
+            using var transaction = _panelApiDbcontext.Database.BeginTransaction();
             try
             {
+                var catRels = await _panelApiDbcontext.Cat_Fe_Relatianals.AsNoTracking().Where(a => a.FeatureId == entity.Id).ToListAsync();
+                if (catRels != null && catRels.Count > 0)
+                {
+                    _panelApiDbcontext.Cat_Fe_Relatianals.RemoveRange(catRels);
+                    await _panelApiDbcontext.SaveChangesAsync();
+                }
+
+                var subcatRels = await _panelApiDbcontext.Fe_SubCat_Relationals.AsNoTracking().Where(a => a.FeatureId == entity.Id).ToListAsync();
+                if (subcatRels != null && subcatRels.Count > 0)
+                {
+                    _panelApiDbcontext.Fe_SubCat_Relationals.RemoveRange(subcatRels);
+                    await _panelApiDbcontext.SaveChangesAsync();
+                }
+
+                var fetureDescs = await _panelApiDbcontext.FeatureDescriptions.AsNoTracking().Where(a => a.FeatureId == entity.Id).ToListAsync();
+                if(fetureDescs !=null && fetureDescs.Count > 0)
+                {
+                    var featureDescIds = fetureDescs.Select(a => a.Id).ToList();
+                    foreach (var item in featureDescIds)
+                    {
+                        var prFeDescRels = await _panelApiDbcontext.Pr_FeDesc_Relationals.AsNoTracking().Where(a => a.FeatureDescriptionId == item).ToListAsync();
+                        if(prFeDescRels != null && prFeDescRels.Count > 0)
+                        {
+                            _panelApiDbcontext.Pr_FeDesc_Relationals.RemoveRange(prFeDescRels);
+                            await _panelApiDbcontext.SaveChangesAsync();
+                        }
+                    }
+
+                    _panelApiDbcontext.FeatureDescriptions.RemoveRange(fetureDescs);
+                    await _panelApiDbcontext.SaveChangesAsync();
+                }
+
+                var prFes = await _panelApiDbcontext.Pr_Fe_Relationals.AsNoTracking().Where(a => a.FeatureId == entity.Id).ToListAsync();
+                if(prFes!=null && prFes.Count > 0)
+                {
+                    _panelApiDbcontext.Pr_Fe_Relationals.RemoveRange(prFes);
+                    await _panelApiDbcontext.SaveChangesAsync();
+                }
+
                 _panelApiDbcontext.Features.Remove(entity);
                 await _panelApiDbcontext.SaveChangesAsync();
+
+                transaction.Commit();
                 return true;
             }
             catch (Exception e)
             {
                 _logger.LogError($"FeatureRepo Delete // {e.Message}");
+                transaction.Rollback();
                 return false;
             }
 
@@ -63,7 +106,7 @@ namespace panelApi.Repository
                     .Include(a => a.FeatureDescriptions)
                     .Where(filter)
                     .OrderBy(a => a.Name)
-                    .FirstOrDefaultAsync() : 
+                    .FirstOrDefaultAsync() :
                     await _panelApiDbcontext.Features
                     .Include(a => a.SubCategories)
                     .Include(a => a.FeatureDescriptions)
@@ -79,7 +122,7 @@ namespace panelApi.Repository
 
         }
 
-        public async Task<ICollection<Feature>> GetList(Expression<Func<Feature, bool>> filter = null)
+        public async Task<List<Feature>> GetList(Expression<Func<Feature, bool>> filter = null)
         {
             try
             {
@@ -87,7 +130,7 @@ namespace panelApi.Repository
                     .Include(a => a.SubCategories)
                     .Include(a => a.FeatureDescriptions)
                     .Where(filter)
-                    .OrderBy(a=>a.Name).ToListAsync() 
+                    .OrderBy(a => a.Name).ToListAsync()
                     : await _panelApiDbcontext.Features
                     .Include(a => a.SubCategories)
                     .Include(a => a.FeatureDescriptions)

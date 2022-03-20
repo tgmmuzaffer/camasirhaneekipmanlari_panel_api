@@ -18,11 +18,13 @@ namespace panelApi.Controllers
     public class SubCategoryController : ControllerBase
     {
         private readonly ISubCategoryRepo _subCategoryRepo;
+        private readonly IFe_SubCat_RelRepo  _fe_SubCat_RelRepo;
         private readonly ILogger<SubCategoryController> _logger;
 
-        public SubCategoryController(ISubCategoryRepo productRepo, ILogger<SubCategoryController> logger)
+        public SubCategoryController(ISubCategoryRepo productRepo,IFe_SubCat_RelRepo fe_SubCat_RelRepo, ILogger<SubCategoryController> logger)
         {
             _subCategoryRepo = productRepo;
+            _fe_SubCat_RelRepo = fe_SubCat_RelRepo;
             _logger = logger;
         }
 
@@ -90,6 +92,30 @@ namespace panelApi.Controllers
             return Ok(result);
         }
 
+
+        [AllowAnonymous]
+        [HttpGet()]
+        [ProducesResponseType(200, Type = typeof(SubCategory))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("getCatId/{Id}")]
+        public async Task<IActionResult> GetCatId(int Id)
+        {
+            var result = await _subCategoryRepo.Get(a => a.Id == Id);
+            if (result == null)
+            {
+                _logger.LogError($"GetCatId/Fail__{Id} Id'li AltKategoriler bulunamdı.");
+                ModelState.AddModelError("", "SubCategory not found");
+                return StatusCode(404, ModelState);
+            }
+
+            return Ok(result);
+        }
+
+
+
+
+
+
         [AllowAnonymous]
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(SubCategory))]
@@ -136,23 +162,26 @@ namespace panelApi.Controllers
         [Route("deleteSubCategory/{Id}")]
         public async Task<IActionResult> DeleteSubCategory(int Id)
         {
-            var product = await _subCategoryRepo.Get(a => a.Id == Id);
-            if (product == null)
+            var subcat = await _subCategoryRepo.Get(a => a.Id == Id);
+            if (subcat == null)
             {
                 _logger.LogError($"DeleteSubCategory__{Id} Id'li AltKategori bulunamdı.");
                 ModelState.AddModelError("", "SubCategory not found");
                 return StatusCode(404, ModelState);
             }
-          
-            var result = await _subCategoryRepo.Delete(product);
-            if (!result)
+
+            //var subcatrel = await _fe_SubCat_RelRepo.GetList(a => a.SubCategoryId == Id);
+            //var rel_delete_result = subcatrel.Count > 0 && await _fe_SubCat_RelRepo.RemoveMultiple(subcatrel);
+
+            var delete_result = await _subCategoryRepo.Delete(subcat);
+            if (!delete_result)
             {
-                _logger.LogError($"DeleteSubCategory/Fail__{product.Name} isimli AltKategori silinirken hata oluştu.");
+                _logger.LogError($"DeleteSubCategory/Fail__{subcat.Name} isimli AltKategori silinirken hata oluştu.");
                 ModelState.AddModelError("", "SubCategory could not deleted");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning($"DeleteSubCategory/Success__{product.Name} isimli AltKategori silindi.");
+            _logger.LogWarning($"DeleteSubCategory/Success__{subcat.Name} isimli AltKategori silindi.");
             return NoContent();
         }
     }

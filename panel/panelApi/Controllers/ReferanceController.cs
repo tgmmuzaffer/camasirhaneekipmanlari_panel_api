@@ -42,13 +42,17 @@ namespace panelApi.Controllers
                 return StatusCode(404, ModelState);
             }
 
-            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + referanceDto.Name;
-            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(referanceDto.ImageData));
+            if (!string.IsNullOrEmpty(referanceDto.ImageData))
+            {
+                string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + referanceDto.Name + ".webp";
+                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(referanceDto.ImageData));
+            }
+
             Referance referance = new()
             {
                 Description = referanceDto.Description,
                 Id = referanceDto.Id,
-                ImageName = referanceDto.ImageName,
+                ImageName = referanceDto.ImageName + ".webp",
                 Name = referanceDto.Name,
                 ShortDescription = referanceDto.ShortDescription
             };
@@ -120,13 +124,13 @@ namespace panelApi.Controllers
             {
                 Description = referanceDto.Description,
                 Id = referanceDto.Id,
-                ImageName = referanceDto.ImageName,
+                ImageName = referanceDto.ImageName + ".webp",
                 Name = referanceDto.Name,
                 ShortDescription = referanceDto.ShortDescription
             };
             if (referance.ImageName != orjreferance.ImageName)
             {
-                var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + orjreferance.ImageName;
+                var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + orjreferance.ImageName + ".webp";
                 System.IO.File.Delete(imgpath);
             }
 
@@ -138,8 +142,12 @@ namespace panelApi.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + referanceDto.ImageName;
-            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(referanceDto.ImageData));           
+            if (!string.IsNullOrEmpty(referanceDto.ImageData))
+            {
+                string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + referanceDto.ImageName;
+                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(referanceDto.ImageData));
+            }
+
 
             _logger.LogWarning($"UpdateReferance/Success__{referanceDto.Name} isimli_{referanceDto.Id} id'li Referans güncellendi");
             return NoContent();

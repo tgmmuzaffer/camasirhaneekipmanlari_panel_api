@@ -2,12 +2,16 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Models.Dtos;
+using panelApi.RepoExtension;
 using panelApi.Repository.IRepository;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -16,27 +20,33 @@ namespace panelApi.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
+        private readonly IMemoryCache _memoryCache;
         private readonly IProductRepo _productRepo;
         private readonly IFeatureRepo _featureRepo;
         private readonly IFeatureDescriptionRepo _featureDescriptionRepo;
         private readonly IPr_Fe_RelRepo _pr_Fe_RelRepo;
         private readonly IPr_FeDesc_RelRepo _pr_FeDesc_RelRepo;
+        private readonly ICat_Fe_RelRepo _cat_Fe_RelRepo;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly ILogger<ProductController> _logger;
 
-        public ProductController(IProductRepo productRepo, 
-            IFeatureRepo featureRepo, 
-            IPr_Fe_RelRepo pr_Fe_RelRepo, 
+        public ProductController(IMemoryCache memoryCache,
+            IProductRepo productRepo,
+            IFeatureRepo featureRepo,
+            IPr_Fe_RelRepo pr_Fe_RelRepo,
             IPr_FeDesc_RelRepo pr_FeDesc_RelRepo,
             IFeatureDescriptionRepo featureDescriptionRepo,
-            IWebHostEnvironment hostingEnvironment, 
+            ICat_Fe_RelRepo cat_Fe_RelRepo,
+            IWebHostEnvironment hostingEnvironment,
             ILogger<ProductController> logger)
         {
+            _memoryCache = memoryCache;
             _productRepo = productRepo;
             _featureRepo = featureRepo;
             _featureDescriptionRepo = featureDescriptionRepo;
             _pr_Fe_RelRepo = pr_Fe_RelRepo;
             _pr_FeDesc_RelRepo = pr_FeDesc_RelRepo;
+            _cat_Fe_RelRepo = cat_Fe_RelRepo;
             _hostingEnvironment = hostingEnvironment;
             _logger = logger;
         }
@@ -56,8 +66,13 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "Product already exist");
                 return StatusCode(404, ModelState);
             }
-            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + product.ImageName + ".webp";
-            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(product.ImagePath));
+
+            if (!string.IsNullOrEmpty(product.ImagePath))
+            {
+                string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + product.ImageName + ".webp";
+                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(product.ImagePath));
+            }
+
             product.ImagePath = product.ImageName + ".webp";
             var result = await _productRepo.Create(product);
             if (result == null)
@@ -94,13 +109,163 @@ namespace panelApi.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet()]
+        [ProducesResponseType(200, Type = typeof(ProductList))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("getProductsByCatId/{Id}")]
+        public async Task<IActionResult> GetProductsByCatId(int Id)
+        {
+            var cacheKey = Security.ProductByCatCache+Id;
+            //ProductList productList = new();
+            if (!_memoryCache.TryGetValue(cacheKey, out List<Product> product))
+            {
+                product = new();
+                //var filterItems = await _cat_Fe_RelRepo.GetList(a => a.CategoryId == Id);
+                //Feature feature = new();
+                //foreach (var item in filterItems)
+                //{
+                //    feature = await _featureRepo.Get(a => a.Id == item.FeatureId);
+                //    product.Features.Add(feature);
+                //}
+                //product.Products = await _productRepo.GetList(a => a.CategoryId == Id);
+                product = await _productRepo.GetList(a => a.CategoryId == Id);
+                foreach (var item in product)
+                {
+                    item.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == item.Id);
+                    var feature_IdList = await _pr_Fe_RelRepo.GetFetureIdList(a => a.ProductId == item.Id);
+                    item.Pr_FeDesc_Relationals = await _pr_FeDesc_RelRepo.GetList(a => a.ProductId == item.Id);
+                    var featureDesc_IdList = await _pr_FeDesc_RelRepo.GetFeatureDescIdList(a => a.ProductId == item.Id);
+
+                    item.Feature = await _featureRepo.GetList(s => feature_IdList.Contains(s.Id));
+                    item.FeatureDescriptions = await _featureDescriptionRepo.GetList(f => featureDesc_IdList.Contains(f.Id));
+                }
+                if (product.Count < 0)
+                {
+                    _logger.LogError("GetProductsByCatId/Fail__Ürünler bulunamdı.", "");
+                    ModelState.AddModelError("", "Product not found");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(cacheKey, product, cacheExpiryOptions);
+            }
+            return Ok(product);
+        }
+
+        [AllowAnonymous]
+        [HttpGet()]
+        [ProducesResponseType(200, Type = typeof(ProductList))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("getProductsBySubCatId/{Id}")]
+        public async Task<IActionResult> GetProductsBySubCatId(int Id)
+        {
+            var cacheKey = Security.ProductBySubCatCache+Id;
+            //ProductList productList = new();
+            if (!_memoryCache.TryGetValue(cacheKey, out List<Product> product))
+            {
+                product = new();
+                //var filterItems = await _cat_Fe_RelRepo.GetList(a => a.CategoryId == Id);
+                //Feature feature = new();
+                //foreach (var item in filterItems)
+                //{
+                //    feature = await _featureRepo.Get(a => a.Id == item.FeatureId);
+                //    product.Features.Add(feature);
+                //}
+                //product.Products = await _productRepo.GetList(a => a.CategoryId == Id);
+                product = await _productRepo.GetList(a => a.SubCategoryId == Id);
+                foreach (var item in product)
+                {
+                    item.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == item.Id);
+                    var feature_IdList = await _pr_Fe_RelRepo.GetFetureIdList(a => a.ProductId == item.Id);
+                    item.Pr_FeDesc_Relationals = await _pr_FeDesc_RelRepo.GetList(a => a.ProductId == item.Id);
+                    var featureDesc_IdList = await _pr_FeDesc_RelRepo.GetFeatureDescIdList(a => a.ProductId == item.Id);
+
+                    item.Feature = await _featureRepo.GetList(s => feature_IdList.Contains(s.Id));
+                    item.FeatureDescriptions = await _featureDescriptionRepo.GetList(f => featureDesc_IdList.Contains(f.Id));
+                }
+                if (product.Count < 0)
+                {
+                    _logger.LogError("GetProductsBySubCatId/Fail__Ürünler bulunamdı.", "");
+                    ModelState.AddModelError("", "Product not found");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(cacheKey, product, cacheExpiryOptions);
+            }
+            return Ok(product);
+        }
+
+        [AllowAnonymous]
+        [HttpGet()]
+        [ProducesResponseType(200, Type = typeof(ProductList))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("getProductsByFeatureDescId/{Id}")]
+        public async Task<IActionResult> GetProductsByFeatureDescId(int Id)
+        {
+            var cacheKey = Security.ProductByFeatureDesCache + Id;
+            //ProductList productList = new();
+            if (!_memoryCache.TryGetValue(cacheKey, out List<Product> product))
+            {
+                product = new();
+                //var filterItems = await _cat_Fe_RelRepo.GetList(a => a.CategoryId == Id);
+                //Feature feature = new();
+                //foreach (var item in filterItems)
+                //{
+                //    feature = await _featureRepo.Get(a => a.Id == item.FeatureId);
+                //    product.Features.Add(feature);
+                //}
+                //product.Products = await _productRepo.GetList(a => a.CategoryId == Id);
+                var productFeRels = await _pr_FeDesc_RelRepo.GetList(a=>a.FeatureDescriptionId==Id);
+                var productIds = productFeRels.Select(b => b.ProductId).ToList();
+                product = await _productRepo.GetList(a => productIds.Any(b=>b==a.Id));
+                foreach (var item in product)
+                {
+                    item.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == item.Id);
+                    var feature_IdList = await _pr_Fe_RelRepo.GetFetureIdList(a => a.ProductId == item.Id);
+                    item.Pr_FeDesc_Relationals = await _pr_FeDesc_RelRepo.GetList(a => a.ProductId == item.Id);
+                    var featureDesc_IdList = await _pr_FeDesc_RelRepo.GetFeatureDescIdList(a => a.ProductId == item.Id);
+
+                    item.Feature = await _featureRepo.GetList(s => feature_IdList.Contains(s.Id));
+                    item.FeatureDescriptions = await _featureDescriptionRepo.GetList(f => featureDesc_IdList.Contains(f.Id));
+                }
+                if (product.Count < 0)
+                {
+                    _logger.LogError("GetProductsBySubCatId/Fail__Ürünler bulunamdı.", "");
+                    ModelState.AddModelError("", "Product not found");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(cacheKey, product, cacheExpiryOptions);
+            }
+            return Ok(product);
+        }
+
+        [AllowAnonymous]
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(Product))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Route("getAllProducts")]
         public async Task<IActionResult> GetAllProducts()
         {
-            var result = await _productRepo.GetList();
+            List<Product> result = new();
+            result = await _productRepo.GetList();
             foreach (var item in result)
             {
                 item.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == item.Id);
@@ -121,6 +286,54 @@ namespace panelApi.Controllers
             return Ok(result);
         }
 
+        //[AllowAnonymous]
+        //[HttpGet]
+        //[ProducesResponseType(200, Type = typeof(Product))]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[Route("getAllProductsWeb")]
+        //public async Task<IActionResult> GetAllProductsWeb()
+        //{
+        //    var cacheKey = Security.Products;
+        //    if (!_memoryCache.TryGetValue(cacheKey, out ProductList productList))
+        //    {
+        //        productList = new();
+        //        var filterItems = await _pr_Fe_RelRepo.GetFetureIdList();
+        //        filterItems = filterItems.Distinct().ToList();
+        //        Feature feature = new();
+        //        foreach (var item in filterItems)
+        //        {
+        //            feature = await _featureRepo.Get(a => a.Id == item);
+        //            productList.Features.Add(feature);
+        //        }
+        //        productList.Products = await _productRepo.GetList();
+        //        foreach (var item in productList.Products)
+        //        {
+        //            item.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == item.Id);
+        //            var feature_IdList = await _pr_Fe_RelRepo.GetFetureIdList(a => a.ProductId == item.Id);
+        //            item.Pr_FeDesc_Relationals = await _pr_FeDesc_RelRepo.GetList(a => a.ProductId == item.Id);
+        //            var featureDesc_IdList = await _pr_FeDesc_RelRepo.GetFeatureDescIdList(a => a.ProductId == item.Id);
+
+        //            item.Feature = await _featureRepo.GetList(s => feature_IdList.Contains(s.Id));
+        //            item.FeatureDescriptions = await _featureDescriptionRepo.GetList(f => featureDesc_IdList.Contains(f.Id));
+        //        }
+        //        if (productList.Products.Count < 0)
+        //        {
+        //            _logger.LogError("GetAllProducts/Fail__Ürünler bulunamdı.", "");
+        //            ModelState.AddModelError("", "Product not found");
+        //            return StatusCode(404, ModelState);
+        //        }
+
+        //        var cacheExpiryOptions = new MemoryCacheEntryOptions
+        //        {
+        //            AbsoluteExpiration = DateTime.Now.AddHours(1),
+        //            Priority = CacheItemPriority.High,
+        //            SlidingExpiration = TimeSpan.FromMinutes(10)
+        //        };
+        //        _memoryCache.Set(cacheKey, productList, cacheExpiryOptions);
+        //    }
+        //    return Ok(productList);
+        //}
+
         [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -137,22 +350,26 @@ namespace panelApi.Controllers
                 return StatusCode(404, ModelState);
             }
 
-            product.ImagePath = product.ImageName + ".webp";
-            if (product.ImagePath != orjprod.ImagePath)
+            if (product.ImageName + ".webp" != orjprod.ImagePath)
             {
                 var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + orjprod.ImagePath;
                 System.IO.File.Delete(imgpath);
             }
 
-            if(product.Feature!=null  && product.FeatureDescriptions != null )
+            if (product.Feature != null && product.FeatureDescriptions != null)
             {
                 product.Pr_FeDesc_Relationals = await _pr_FeDesc_RelRepo.GetList(a => a.ProductId == product.Id);
                 product.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == product.Id);
             }
 
+            if (!string.IsNullOrEmpty(product.ImagePath))
+            {
+                string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + product.ImageName + ".webp";
+                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(product.ImagePath));
+            }
+
+            product.ImagePath = product.ImageName + ".webp";
             var result = await _productRepo.Update(product);
-            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + product.ImageName + ".webp";
-            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(product.ImagePath));
 
             if (!result)
             {

@@ -75,7 +75,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<SubCategory>> GetList(Expression<Func<SubCategory, bool>> filter = null)
+        public async Task<List<SubCategory>> GetList(Expression<Func<SubCategory, bool>> filter = null)
         {
             try
             {
@@ -122,6 +122,23 @@ namespace panelApi.Repository
             {
                 _logger.LogError($"SubCategoryRepo Update // {e.Message}");
                 return false;
+            }
+        }
+
+        public async Task<int> GetCategoryId(Expression<Func<SubCategory, bool>> filter = null)
+        {
+            try
+            {
+              int result = filter ==null ? 
+                    await _panelApiDbcontext.SubCategories.Where(filter).AsNoTracking().Select(a=>a.CategoryId).FirstOrDefaultAsync() :
+                    await _panelApiDbcontext.SubCategories.AsNoTracking().Select(a=>a.CategoryId).FirstOrDefaultAsync();
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"SubCategoryRepo Update // {e.Message}");
+                return 0;
             }
         }
     }

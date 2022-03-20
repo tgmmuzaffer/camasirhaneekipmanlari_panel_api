@@ -21,13 +21,19 @@ namespace panelApi.Models
         public bool IsPublish { get; set; }
         public DateTime CreateDate { get; set; }
         [NotMapped]
-        public ICollection<Feature> Feature { get; set; }
+        public List<Feature> Feature { get; set; } = new List<Feature>();
         [NotMapped]
-        public ICollection<FeatureDescription> FeatureDescriptions { get; set; }
+        public List<FeatureDescription> FeatureDescriptions { get; set; } = new List<FeatureDescription>();
         [NotMapped]
-        public ICollection<Pr_Fe_Relational> Pr_Fe_Relationals{ get; set; }
+        public List<Pr_Fe_Relational> Pr_Fe_Relationals { get; set; } = new List<Pr_Fe_Relational>();
         [NotMapped]
-        public ICollection<Pr_FeDesc_Relational> Pr_FeDesc_Relationals{ get; set; }
+        public List<Pr_FeDesc_Relational> Pr_FeDesc_Relationals { get; set; } = new List<Pr_FeDesc_Relational>();
         
+    }
+
+    public class ProductList
+    {
+        public List<Product> Products { get; set; } = new List<Product>();
+        public List<Feature> Features { get; set; } = new List<Feature>();
     }
 }

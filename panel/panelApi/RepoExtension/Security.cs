@@ -6,6 +6,13 @@ namespace panelApi.RepoExtension
 {
     public static class Security
     {
+        public static string ProductByCatCache = "ProductsByCatategoryId";
+        public static string ProductBySubCatCache = "ProductsBySubCatategoryId";
+        public static string ProductByFeatureDesCache = "ProductsByFeatureDescriptionId";
+        public static string Products = "AllProducts";
+
+
+
         public static string HashCreate(string pass, string salt)
         {
             var valueBytes = KeyDerivation.Pbkdf2(

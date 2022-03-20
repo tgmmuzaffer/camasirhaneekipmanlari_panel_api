@@ -13,6 +13,7 @@ namespace panelApi.RepoExtension
         {
             string connectionString = configuration["ConnectionStrings:PanelApiConnection"];
             services.AddDbContext<PanelApiDbcontext>(options => options.UseSqlServer(connectionString).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+            services.AddDbContext<LogDbcontext>(options => options.UseSqlServer(connectionString).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
         }
         public static void ConfigureServices(this IServiceCollection services)
         {
@@ -20,9 +21,6 @@ namespace panelApi.RepoExtension
             services.AddScoped<IUserRepo, UserRepo>();
             services.AddScoped<IProductRepo, ProductRepo>();
             services.AddScoped<ICategoryRepo, CategoryRepo>();
-            //services.AddScoped<IProductPropertyRepo, ProductPropertyRepo>();
-            //services.AddScoped<IPropertyDesRepo, PropertyDescRepo>();
-            //services.AddScoped<IPropertyCategoryRepo, PropertyCategoryRepo>();
             services.AddScoped<IContactRepo, ContactRepo>();
             services.AddScoped<ITagRepo, TagRepo>();
             services.AddScoped<IBlogRepo, BlogRepo>();
@@ -37,6 +35,9 @@ namespace panelApi.RepoExtension
             services.AddScoped<IPr_Fe_RelRepo, Pr_Fe_RelRepo>();
             services.AddScoped<IFe_SubCat_RelRepo, Fe_SubCat_RelRepo>();
             services.AddScoped<ILogRepo, LogRepo>();
+            services.AddScoped<IAboutUsRepo, AboutUsRepo>();
+            services.AddScoped<ICat_Fe_RelRepo, Cat_Fe_RelRepo>();
+            services.AddScoped<ICat_FeDesc_RelRepo, Cat_FeDesc_RelRepo>();
 
 
         }

@@ -1,4 +1,7 @@
-﻿namespace panelApi.Models
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace panelApi.Models
 {
     public class Slider :IEntity
     {
@@ -10,6 +13,8 @@
         public string Link { get; set; }
         public string ButtonName { get; set; }
         public string ImageName { get; set; }
+        [NotMapped]
+        public string ImageData { get; set; }
         public bool IsShow { get; set; }
     }
 }

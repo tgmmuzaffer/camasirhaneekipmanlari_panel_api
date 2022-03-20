@@ -10,6 +10,6 @@ namespace panelApi.Repository.IRepository
     public interface IPr_FeDesc_RelRepo : IBaseRepo<Pr_FeDesc_Relational>
     {
         Task<bool> CreateMultiple(List<Pr_FeDesc_Relational> entity);
-        Task<ICollection<int>> GetFeatureDescIdList(Expression<Func<Pr_FeDesc_Relational, bool>> filter = null);
+        Task<List<int>> GetFeatureDescIdList(Expression<Func<Pr_FeDesc_Relational, bool>> filter = null);
     }
 }

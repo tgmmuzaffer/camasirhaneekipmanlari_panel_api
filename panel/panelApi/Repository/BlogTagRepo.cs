@@ -73,7 +73,9 @@ namespace panelApi.Repository
         {
             try
             {
-                var result = filter != null ? await _panelApiDbcontext.BlogTags.Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.BlogTags.FirstOrDefaultAsync();
+                var result = filter != null ? 
+                    await _panelApiDbcontext.BlogTags.Where(filter).AsNoTracking().FirstOrDefaultAsync() 
+                    : await _panelApiDbcontext.BlogTags.AsNoTracking().FirstOrDefaultAsync();
                 return result;
             }
             catch (Exception e)
@@ -88,8 +90,8 @@ namespace panelApi.Repository
             try
             {
                 var result = filter != null ?
-               await _panelApiDbcontext.BlogTags.Where(filter).Select(a => a.TagId).ToListAsync() :
-               await _panelApiDbcontext.BlogTags.Select(a => a.TagId).ToListAsync();
+               await _panelApiDbcontext.BlogTags.Where(filter).AsNoTracking().Select(a => a.TagId).ToListAsync() :
+               await _panelApiDbcontext.BlogTags.AsNoTracking().Select(a => a.TagId).ToListAsync();
                 return result;
             }
             catch (Exception e)
@@ -99,11 +101,13 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<BlogTag>> GetList(Expression<Func<BlogTag, bool>> filter = null)
+        public async Task<List<BlogTag>> GetList(Expression<Func<BlogTag, bool>> filter = null)
         {
             try
             {
-                var result = filter != null ? await _panelApiDbcontext.BlogTags.Where(filter).ToListAsync() : await _panelApiDbcontext.BlogTags.ToListAsync();
+                var result = filter != null ?
+                    await _panelApiDbcontext.BlogTags.Where(filter).AsNoTracking().ToListAsync()
+                    : await _panelApiDbcontext.BlogTags.AsNoTracking().ToListAsync();
                 return result;
             }
             catch (Exception e)
@@ -131,7 +135,7 @@ namespace panelApi.Repository
         {
             try
             {
-                var list = await _panelApiDbcontext.BlogTags.Where(a => a.BlogId == Id).ToListAsync();
+                var list = await _panelApiDbcontext.BlogTags.Where(a => a.BlogId == Id).AsNoTracking().ToListAsync();
                 _panelApiDbcontext.BlogTags.RemoveRange(list);
                 await _panelApiDbcontext.SaveChangesAsync();
                 return true;

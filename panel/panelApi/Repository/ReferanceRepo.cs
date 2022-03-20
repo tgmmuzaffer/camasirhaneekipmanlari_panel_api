@@ -64,7 +64,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<Referance>> GetList(Expression<Func<Referance, bool>> filter = null)
+        public async Task<List<Referance>> GetList(Expression<Func<Referance, bool>> filter = null)
         {
             try
             {

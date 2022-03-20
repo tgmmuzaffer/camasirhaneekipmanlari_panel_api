@@ -53,13 +53,13 @@ namespace panelApi.Controllers
         [HttpGet()]
         [ProducesResponseType(200, Type = typeof(Contact))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Route("getContact/{Id}")]
-        public async Task<IActionResult> GetContact(int Id)
+        [Route("getContact")]
+        public async Task<IActionResult> GetContact()
         {
-            var result = await _contactRepo.Get(a => a.Id == Id);
+            var result = await _contactRepo.Get();
             if (result == null)
             {
-                _logger.LogError($"GetContact/Fail__{Id} Id'li İletişim Bilgisi bulunamdı.");
+                _logger.LogError($"GetContact/Fail__ Id'li İletişim Bilgisi bulunamdı.");
                 ModelState.AddModelError("", "Contact not found");
                 return StatusCode(404, ModelState);
             }
@@ -117,7 +117,7 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Route("deleteContact/{Id}")]
+        [Route("deleteContact/{id}")]
         public async Task<IActionResult> DeleteContact(int Id)
         {
             var contact = await _contactRepo.Get(a => a.Id == Id);

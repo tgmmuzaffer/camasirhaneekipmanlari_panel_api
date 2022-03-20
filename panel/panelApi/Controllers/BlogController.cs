@@ -47,8 +47,12 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "Blog already exist");
                 return StatusCode(404, ModelState);
             }
-            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + blogDto.ImageName + ".webp";
-            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(blogDto.ImagePath));
+            if (!string.IsNullOrEmpty(blogDto.ImagePath))
+            {
+                string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + blogDto.ImageName + ".webp";
+                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(blogDto.ImagePath));
+            }
+
             Blog blog = new()
             {
                 Content = blogDto.Content,
@@ -113,7 +117,7 @@ namespace panelApi.Controllers
             blogDto.TagNames = null;
             blogDto.Title = result.Title;
             var blogTagResult = await _blogTagRepo.GetIdList(a => a.BlogId == result.Id);
-            if (blogTagResult != null)
+            if (blogTagResult == null)
             {
                 _logger.LogWarning($"GetBlog__{Id} id'li blog a ait taglar bulunamadı.");
                 ModelState.AddModelError("", "BlogTag not found");
@@ -121,7 +125,7 @@ namespace panelApi.Controllers
             }
 
             var tagList = await _tagRepo.GetList(a => blogTagResult.Contains(a.Id));
-            if (blogTagResult != null)
+            if (blogTagResult == null)
             {
                 _logger.LogWarning($"GetBlog__{result.Title} başlıklı {Id} id'li blog a ait taglar bulunamadı.");
                 ModelState.AddModelError("", "BlogTag not found");
@@ -226,8 +230,13 @@ namespace panelApi.Controllers
                 };
                 isblogTagupdated = await _blogTagRepo.Update(blogTag);
             }
-            string filePath = _hostingEnvironment.ContentRootPath + @"\webpImages\" + blogDto.ImageName + ".webp";
-            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(blogDto.ImagePath));
+
+            if (!string.IsNullOrEmpty(blogDto.ImagePath))
+            {
+                string filePath = _hostingEnvironment.ContentRootPath + @"\webpImages\" + blogDto.ImageName + ".webp";
+                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(blogDto.ImagePath));
+            }
+
             if (!isblogTagupdated)
             {
                 _logger.LogError($"UpdateBlog/Fail__{blogDto.Title} başlıklı blog güncellenirken taglar eklenemedi.");

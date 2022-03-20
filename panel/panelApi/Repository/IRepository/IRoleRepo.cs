@@ -8,7 +8,7 @@ namespace panelApi.Repository.IRepository
 {
     public interface IRoleRepo
     {
-        Task<ICollection<Role>> GetRoles();
+        Task<List<Role>> GetRoles();
         Task<Role> GetRole(Expression<Func<Role, bool>> filter = null);
     }
 }

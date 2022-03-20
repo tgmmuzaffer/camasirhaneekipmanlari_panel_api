@@ -70,6 +70,23 @@ namespace panelApi.Controllers
 
             return Ok(result);
         }
+        [AllowAnonymous]
+        [HttpGet()]
+        [ProducesResponseType(200, Type = typeof(Feature))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("getFeatureByName/{name}")]
+        public async Task<IActionResult> GetFeatureByName(string name)
+        {
+            var result = await _featureRepo.Get(a => a.Name == name);
+            if (result == null)
+            {
+                _logger.LogError($"GetFeature/Fail__{name} Id'li Özellik bulunamdı.");
+                ModelState.AddModelError("", "Feature not found");
+                return StatusCode(404, ModelState);
+            }
+
+            return Ok(result);
+        }
 
         [AllowAnonymous]
         [HttpGet]
@@ -88,7 +105,7 @@ namespace panelApi.Controllers
 
             return Ok(result);
         }
-        
+
         [AllowAnonymous]
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(Feature))]

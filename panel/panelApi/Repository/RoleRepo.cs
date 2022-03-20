@@ -39,7 +39,7 @@ namespace panelApi.Repository
 
         }
 
-        public async Task<ICollection<Role>> GetRoles()
+        public async Task<List<Role>> GetRoles()
         {
             try
             {

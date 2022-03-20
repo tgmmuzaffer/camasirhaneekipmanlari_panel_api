@@ -79,7 +79,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<Pr_Fe_Relational>> GetList(Expression<Func<Pr_Fe_Relational, bool>> filter = null)
+        public async Task<List<Pr_Fe_Relational>> GetList(Expression<Func<Pr_Fe_Relational, bool>> filter = null)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace panelApi.Repository
                 return null;
             }
         }
-         public async Task<ICollection<int>> GetFetureIdList(Expression<Func<Pr_Fe_Relational, bool>> filter = null)
+         public async Task<List<int>> GetFetureIdList(Expression<Func<Pr_Fe_Relational, bool>> filter = null)
         {
             try
             {

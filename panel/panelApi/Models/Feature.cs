@@ -11,10 +11,10 @@ namespace panelApi.Models
         public int Id { get; set; }
         public string Name { get; set; }
         //public int SubCategoryId { get; set; }        
-        public ICollection<SubCategory> SubCategories { get; set; }
-        public ICollection<FeatureDescription> FeatureDescriptions { get; set; }
+        public List<SubCategory> SubCategories { get; set; } = new List<SubCategory>();
+        public List<FeatureDescription> FeatureDescriptions { get; set; } = new List<FeatureDescription>();
         [NotMapped]
-        public ICollection<Fe_SubCat_Relational> Fe_SubCat_Relationals { get; set; }
+        public List<Fe_SubCat_Relational> Fe_SubCat_Relationals { get; set; } = new List<Fe_SubCat_Relational>();
 
 
     }

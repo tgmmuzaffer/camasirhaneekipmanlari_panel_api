@@ -10,8 +10,8 @@ namespace panelApi.Repository.IRepository
     public interface ILogRepo 
     {
         Task RemoveMultiple(ICollection<Log> logs);
-        Task<ICollection<Log>> GetLogs(Expression<Func<Log, bool>> filter = null);
-        Task<ICollection<Log>> GetLogs(int count);
+        Task<List<Log>> GetLogs(Expression<Func<Log, bool>> filter = null);
+        Task<List<Log>> GetLogs(int count);
 
     }
 }

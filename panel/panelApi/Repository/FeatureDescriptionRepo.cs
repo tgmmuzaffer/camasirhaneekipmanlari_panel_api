@@ -39,15 +39,31 @@ namespace panelApi.Repository
 
         public async Task<bool> Delete(FeatureDescription entity)
         {
+            using var transaction = _panelApiDbcontext.Database.BeginTransaction();
+
             try
             {
+                var prFeDescs = await _panelApiDbcontext.Pr_FeDesc_Relationals.AsNoTracking().Where(a => a.FeatureDescriptionId == entity.Id).ToListAsync();
+                if(prFeDescs!=null && prFeDescs.Count < 0)
+                {
+                    _panelApiDbcontext.Pr_FeDesc_Relationals.RemoveRange(prFeDescs);
+                    await _panelApiDbcontext.SaveChangesAsync();
+                }
+
                 _panelApiDbcontext.FeatureDescriptions.Remove(entity);
                 await _panelApiDbcontext.SaveChangesAsync();
+
+
+                transaction.Commit();
+
                 return true;
+
             }
             catch (Exception e)
             {
                 _logger.LogError($"FeatureDescriptionRepo Delete // {e.Message}");
+                transaction.Rollback();
+
                 return false;
             }
 
@@ -77,7 +93,7 @@ namespace panelApi.Repository
 
         }
 
-        public async Task<ICollection<FeatureDescription>> GetList(Expression<Func<FeatureDescription, bool>> filter = null)
+        public async Task<List<FeatureDescription>> GetList(Expression<Func<FeatureDescription, bool>> filter = null)
         {
             try
             {

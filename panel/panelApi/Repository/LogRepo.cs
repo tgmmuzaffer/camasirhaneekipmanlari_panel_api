@@ -14,22 +14,22 @@ namespace panelApi.Repository
     public class LogRepo : ILogRepo
     {
         private readonly ILogger<LogRepo> _logger;
-        private readonly PanelApiDbcontext _panelApiDbcontext;
-        public LogRepo(PanelApiDbcontext panelApiDbcontext, ILogger<LogRepo> logger)
+        private readonly LogDbcontext _logDbcontext;
+        public LogRepo(LogDbcontext logDbcontext, ILogger<LogRepo> logger)
         {
             _logger = logger;
-            _panelApiDbcontext = panelApiDbcontext;
+            _logDbcontext = logDbcontext;
         }
 
-        public async Task<ICollection<Log>> GetLogs(Expression<Func<Log, bool>> filter)
+        public async Task<List<Log>> GetLogs(Expression<Func<Log, bool>> filter)
         {
             try
             {
                 return filter == null ?
-                               await _panelApiDbcontext.Logs
+                               await _logDbcontext.Logs
                                .OrderBy(b => b.TimeStamp)
                                .ToListAsync() :
-                               await _panelApiDbcontext.Logs
+                               await _logDbcontext.Logs
                                .Where(filter)
                                .OrderBy(b => b.TimeStamp)
                                .ToListAsync();
@@ -42,11 +42,11 @@ namespace panelApi.Repository
 
         }
 
-        public async Task<ICollection<Log>> GetLogs(int count)
+        public async Task<List<Log>> GetLogs(int count)
         {
             try
             {
-                return await _panelApiDbcontext.Logs.Take(count).OrderBy(a => a.TimeStamp).ToListAsync();
+                return await _logDbcontext.Logs.Take(count).OrderBy(a => a.TimeStamp).ToListAsync();
             }
             catch (Exception e)
             {
@@ -58,11 +58,11 @@ namespace panelApi.Repository
 
         public async Task RemoveMultiple(ICollection<Log> logs)
         {
-            using var transaction = _panelApiDbcontext.Database.BeginTransaction();
+            using var transaction = _logDbcontext.Database.BeginTransaction();
             try
             {
-                _panelApiDbcontext.RemoveRange(logs);
-                await _panelApiDbcontext.SaveChangesAsync();
+                _logDbcontext.RemoveRange(logs);
+                await _logDbcontext.SaveChangesAsync();
 
                 transaction.Commit();
 

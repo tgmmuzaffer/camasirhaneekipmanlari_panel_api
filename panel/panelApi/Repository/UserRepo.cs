@@ -82,7 +82,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<UserDto>> GetList(Expression<Func<User, bool>> filter = null)
+        public async Task<List<UserDto>> GetList(Expression<Func<User, bool>> filter = null)
         {
             try
             {

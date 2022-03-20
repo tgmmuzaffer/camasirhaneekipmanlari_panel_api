@@ -64,7 +64,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<Slider>> GetList(Expression<Func<Slider, bool>> filter = null)
+        public async Task<List<Slider>> GetList(Expression<Func<Slider, bool>> filter = null)
         {
             try
             {

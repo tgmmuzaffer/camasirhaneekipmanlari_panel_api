@@ -80,7 +80,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<Pr_FeDesc_Relational>> GetList(Expression<Func<Pr_FeDesc_Relational, bool>> filter = null)
+        public async Task<List<Pr_FeDesc_Relational>> GetList(Expression<Func<Pr_FeDesc_Relational, bool>> filter = null)
         {
             try
             {
@@ -95,7 +95,7 @@ namespace panelApi.Repository
                 return null;
             }
         }
-        public async Task<ICollection<int>> GetFeatureDescIdList(Expression<Func<Pr_FeDesc_Relational, bool>> filter = null)
+        public async Task<List<int>> GetFeatureDescIdList(Expression<Func<Pr_FeDesc_Relational, bool>> filter = null)
         {
             try
             {

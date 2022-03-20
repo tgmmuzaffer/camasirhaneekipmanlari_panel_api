@@ -57,7 +57,9 @@ namespace panelApi.Repository
         {
             try
             {
-                var result = filter != null ? await _panelApiDbcontext.Blogs.Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.Blogs.FirstOrDefaultAsync();
+                var result = filter != null ? 
+                    await _panelApiDbcontext.Blogs.Where(filter).AsNoTracking().FirstOrDefaultAsync() : 
+                    await _panelApiDbcontext.Blogs.AsNoTracking().FirstOrDefaultAsync();
                 return result;
             }
             catch (Exception e)
@@ -67,11 +69,11 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<Blog>> GetList(Expression<Func<Blog, bool>> filter = null)
+        public async Task<List<Blog>> GetList(Expression<Func<Blog, bool>> filter = null)
         {
             try
             {
-                var result = filter != null ? await _panelApiDbcontext.Blogs.Where(filter).ToListAsync() : await _panelApiDbcontext.Blogs.ToListAsync();
+                var result = filter != null ? await _panelApiDbcontext.Blogs.Where(filter).AsNoTracking().OrderByDescending(a => a.CreateDate).ToListAsync() : await _panelApiDbcontext.Blogs.AsNoTracking().OrderByDescending(a => a.CreateDate).ToListAsync();
                 return result;
             }
             catch (Exception e)

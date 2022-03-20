@@ -32,31 +32,33 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize]
         [Route("createSlider")]
-        public async Task<IActionResult> CreateSlider([FromBody] SliderDto sliderDto)
+        public async Task<IActionResult> CreateSlider([FromBody] Slider slider)
         {
-            Slider slider = new()
+            bool isOk = true;
+            var isexist = await _sliderRepo.IsExist(a => a.SliderName == slider.SliderName);
+            if (isexist)
             {
-                ButtonName = sliderDto.ButtonName,
-                Content1 = sliderDto.Content1,
-                Content2 = sliderDto.Content2,
-                Content3 = sliderDto.Content3,
-                Id = sliderDto.Id,
-                ImageName = sliderDto.ImageName,
-                IsShow = sliderDto.IsShow,
-                Link = sliderDto.Link,
-                SliderName = sliderDto.SliderName
-            };
+                _logger.LogError("CreateSlider__Slider zaten mevcut", "");
+                ModelState.AddModelError("", "Slider already exist");
+                return StatusCode(404, ModelState);
+            }
+
+            if (!string.IsNullOrEmpty(slider.ImageData))
+            {
+                string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + slider.ImageName;
+                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(slider.ImageData));
+            }
+
+            slider.ImageData = slider.ImageName;
             var result = await _sliderRepo.Create(slider);
             if (result == null)
             {
-                _logger.LogError($"CreateSlider/Fail__{sliderDto.SliderName} isimli Slider oluşturulurken hata meydana geldi.");
+                _logger.LogError($"CreateSlider/Fail__{slider.SliderName} isimli Slider oluşturulurken hata meydana geldi.");
                 ModelState.AddModelError("", "Slider could not created");
                 return StatusCode(500, ModelState);
             }
 
-            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + sliderDto.ImageName;
-            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(sliderDto.ImageData));
-            _logger.LogWarning($"CreateSlider/Success__{sliderDto.SliderName} isimli Slider oluşturuldu.");
+            _logger.LogWarning($"CreateSlider/Success__{slider.SliderName} isimli Slider oluşturuldu.");
             return Ok(result.Id);
         }
 
@@ -120,45 +122,35 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("updateSlider")]
-        public async Task<IActionResult> UpdateSlider([FromBody] SliderDto sliderDto)
+        public async Task<IActionResult> UpdateSlider([FromBody] Slider slider)
         {
-            var orjSlider = await _sliderRepo.Get(a => a.Id == sliderDto.Id);
+            var orjSlider = await _sliderRepo.Get(a => a.Id == slider.Id);
             if (orjSlider == null)
             {
-                _logger.LogError($"UpdateSlider__{sliderDto.SliderName} isimli_{sliderDto.Id} Id'li Slider bulunamdı.");
+                _logger.LogError($"UpdateSlider__{slider.SliderName} isimli_{slider.Id} Id'li Slider bulunamdı.");
                 ModelState.AddModelError("", "Referance not found");
                 return StatusCode(404, ModelState);
             }
 
-            if (orjSlider.ImageName != sliderDto.ImageName) //
+            if (orjSlider.ImageName != slider.ImageName) //
             {
                 var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + orjSlider.ImageName;
                 System.IO.File.Delete(imgpath);
             }
 
-            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + sliderDto.ImageName;
-            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(sliderDto.ImageData));
-            Slider slider = new()
-            {
-                ButtonName = sliderDto.ButtonName,
-                Content1 = sliderDto.Content1,
-                Content2 = sliderDto.Content2,
-                Content3 = sliderDto.Content3,
-                Id = sliderDto.Id,
-                ImageName = sliderDto.ImageName, //
-                IsShow = sliderDto.IsShow,
-                Link = sliderDto.Link,
-                SliderName = sliderDto.SliderName
-            };
+            string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + slider.ImageName;
+            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(slider.ImageData));
+
+            slider.ImageData = slider.ImageName;
             var result = await _sliderRepo.Update(slider);
             if (!result)
             {
-                _logger.LogError($"UpdateSlider/Fail__{sliderDto.SliderName} isimli Slider güncellenirken hata meydana geldi.");
+                _logger.LogError($"UpdateSlider/Fail__{slider.SliderName} isimli Slider güncellenirken hata meydana geldi.");
                 ModelState.AddModelError("", "Slider could not updated");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning($"UpdateSlider/Success__{sliderDto.SliderName} isimli_{sliderDto.Id} id'li Slider güncellendi");
+            _logger.LogWarning($"UpdateSlider/Success__{slider.SliderName} isimli_{slider.Id} id'li Slider güncellendi");
             return NoContent();
         }
 

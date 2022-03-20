@@ -88,6 +88,24 @@ namespace panelApi.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
+        [HttpGet]
+        [ProducesResponseType(200, Type = typeof(FeatureDescription))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("getAllfeatureDescriptionsByFeatureId/{Id}")]
+        public async Task<IActionResult> GetAllFeatureDescriptionsByFeatureId(int Id)
+        {
+            var result = await _featureDescriptionRepo.GetList(a=>a.FeatureId==Id);
+            if (result.Count < 0)
+            {
+                _logger.LogError("GetAllFeatureDescriptionsByFeatureId/Fail__ÖzellikAçıklamaları bulunamdı.", "");
+                ModelState.AddModelError("", "FeatureDescription not found");
+                return StatusCode(404, ModelState);
+            }
+
+            return Ok(result);
+        }
+
         [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

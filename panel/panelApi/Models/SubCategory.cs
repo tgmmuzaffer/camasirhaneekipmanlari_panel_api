@@ -12,9 +12,9 @@ namespace panelApi.Models
         public string Name { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; }
-        public ICollection<Feature> Features { get; set; } = new List<Feature>();
+        public List<Feature> Features { get; set; } = new List<Feature>();
         [NotMapped]
-        public ICollection<Fe_SubCat_Relational> Fe_SubCat_Relationals { get; set; }
+        public List<Fe_SubCat_Relational> Fe_SubCat_Relationals { get; set; } = new List<Fe_SubCat_Relational>();
 
     }
 }

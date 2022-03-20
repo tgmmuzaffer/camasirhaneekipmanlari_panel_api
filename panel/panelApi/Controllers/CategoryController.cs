@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
+using System;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -15,11 +17,14 @@ namespace panelApi.Controllers
     {
         private readonly ICategoryRepo _categoryRepo;
         private readonly ILogger<CategoryController> _logger;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public CategoryController(ICategoryRepo categoryRepo, ILogger<CategoryController> logger)
+        public CategoryController(ICategoryRepo categoryRepo, IWebHostEnvironment hostingEnvironment, ILogger<CategoryController> logger)
         {
             _categoryRepo = categoryRepo;
             _logger = logger;
+            _hostingEnvironment = hostingEnvironment;
+
         }
 
 
@@ -29,10 +34,10 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize]
         [Route("createCategory")]
-        public async Task<IActionResult> CreateCategory([FromBody] CategoryDto categoryDto)
+        public async Task<IActionResult> CreateCategory([FromBody] Category category)
         {
             bool isOk = true;
-            var isexist = await _categoryRepo.IsExist(a => a.Name == categoryDto.Name);
+            var isexist = await _categoryRepo.IsExist(a => a.Name == category.Name);
             if (isexist)
             {
                 _logger.LogError("CreateCategory__Kategori zaten mevcut", "");
@@ -40,34 +45,24 @@ namespace panelApi.Controllers
                 return StatusCode(404, ModelState);
             }
 
-            Category category = new Category()
+            if (!string.IsNullOrEmpty(category.ImagePath))
             {
-                Id = categoryDto.Id,
-                Name = categoryDto.Name
-            };
-            var result = await _categoryRepo.Create(category);
-            //for (int i = 0; i < categoryDto.ProductPropertyIds.Count; i++)
-            //{
-            //    PropertyCategory propertyCategory = new PropertyCategory()
-            //    {
-            //        CategoryId = result.Id,
-            //        ProductPropertyId = categoryDto.ProductPropertyIds[i]
-            //    };
+                string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + category.ImageName;
+                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(category.ImagePath));
+            }
 
-            //    var res = await _propertyCategoryRepo.Create(propertyCategory);
-            //    isOk = res == null ? false : true;
-            //}
+            category.ImagePath = category.ImageName;
+            var result = await _categoryRepo.Create(category);
 
             if (result == null && isOk == true)
             {
-                _logger.LogError($"CreateCategory/Fail__{categoryDto.Name} isimli Kategori oluşturulurken hata meydana geldi.");
-                _logger.LogError($"CreateCategory/Fail__{categoryDto.Name} isimli Kategori oluşturulurken Özellikleri eklenemedi.");
-                ModelState.AddModelError("", "Category could not created");              
+                _logger.LogError($"CreateCategory/Fail__{category.Name} isimli Kategori oluşturulurken hata meydana geldi.");
+                ModelState.AddModelError("", "Category could not created");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning("CreateCategory_Success", $"{categoryDto.Name} isimli Kategori oluşturuldu.");
-            return Ok(categoryDto.Id);
+            _logger.LogWarning("CreateCategory_Success", $"{category.Name} isimli Kategori oluşturuldu.");
+            return Ok(category.Id);
         }
 
         [AllowAnonymous]
@@ -78,32 +73,27 @@ namespace panelApi.Controllers
         public async Task<IActionResult> GetCategory(int Id)
         {
             var result = await _categoryRepo.Get(a => a.Id == Id);
-            //var resultPropertyCategory = await _propertyCategoryRepo.GetIdList(b => b.CategoryId == Id);
-            //if (resultPropertyCategory == null)
-            //{
-            //    _logger.LogError($"GetCategory/Fail__{Id} Id'li Kategori Özelliği bulunamdı.");
-            //    ModelState.AddModelError("", "Category not found");
-            //    return StatusCode(404, ModelState);
-            //}
-
-            //var productProperties = await _productPropertyRepo.GetNames(d => resultPropertyCategory.Contains(d.Id));
-            //if (productProperties == null)
-            //{
-            //    _logger.LogError( $"GetCategory/Fail__{Id} Id'li Ürün Özelliği bulunamdı.");
-            //    ModelState.AddModelError("", "Category not found");
-            //    return StatusCode(404, ModelState);
-            //}
-
-            //CategoryDto categoryDto = new()
-            //{
-            //    Id = result.Id,
-            //    Name = result.Name,
-            //    ProductPropertyNames = productProperties,
-            //    ProductPropertyIds= resultPropertyCategory
-            //};
             if (result == null)
             {
                 _logger.LogError($"GetCategory/Fail__{Id} Id'li Kategori bulunamdı.");
+                ModelState.AddModelError("", "Category not found");
+                return StatusCode(404, ModelState);
+            }
+
+            return Ok(result);
+        }
+
+        [AllowAnonymous]
+        [HttpGet()]
+        [ProducesResponseType(200, Type = typeof(CategoryDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("getCategoryName/{Id}")]
+        public async Task<IActionResult> GetCategoryName(int Id)
+        {
+            var result = await _categoryRepo.Get(a => a.Id == Id);
+            if (result == null)
+            {
+                _logger.LogError($"GetCategoryName/Fail__{Id} Id'li Kategori bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
@@ -129,6 +119,24 @@ namespace panelApi.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
+        [HttpGet]
+        [ProducesResponseType(200, Type = typeof(Category))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("getAllCategoriesName")]
+        public async Task<IActionResult> GetAllCategoriesName()
+        {
+            var result = await _categoryRepo.GetNameList();
+            if (result == null)
+            {
+                _logger.LogError("GetAllCategoriesName/Fail__Kategoriler bulunamdı.");
+                ModelState.AddModelError("", "Category not found");
+                return StatusCode(404, ModelState);
+            }
+
+            return Ok(result);
+        }
+
         [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -137,19 +145,29 @@ namespace panelApi.Controllers
         [Route("updateCategory")]
         public async Task<IActionResult> UpdateCategory([FromBody] Category category)
         {
-            bool isOk = true;
-            var isexist = await _categoryRepo.IsExist(a => a.Id == category.Id);
-            if (!isexist)
+            var orjcat = await _categoryRepo.Get(a => a.Id == category.Id);
+            if (orjcat == null)
             {
                 _logger.LogError($"UpdateCategory__{category.Name} isimli_{category.Id} Id'li Kategori bulunamdı.");
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
-            //Category category = new Category()
-            //{
-            //    Id = categoryDto.Id,
-            //    Name = categoryDto.Name
-            //};
+
+
+            if ((orjcat.ImagePath != null) && (category.ImageName != orjcat.ImagePath))
+            {
+                var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + orjcat.ImagePath;
+                System.IO.File.Delete(imgpath);
+            }
+
+            if (!string.IsNullOrEmpty(category.ImagePath))
+            {
+                string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + category.ImageName;
+                System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(category.ImagePath));
+            }
+
+
+            category.ImagePath = category.ImageName;
             var result = await _categoryRepo.Update(category);
             if (!result)
             {
@@ -158,23 +176,6 @@ namespace panelApi.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            //for (int i = 0; i < categoryDto.ProductPropertyIds.Count; i++)
-            //{
-            //    PropertyCategory propertyCategory = new PropertyCategory()
-            //    {
-            //        CategoryId = categoryDto.Id,
-            //        ProductPropertyId = categoryDto.ProductPropertyIds[i]
-            //    };
-
-            //    var res = await _propertyCategoryRepo.Update(propertyCategory);
-            //    isOk = res == false ? false : true;
-            //}
-            //if (!result || !isOk)
-            //{
-            //    _logger.LogError($"UpdateCategory/Fail__{ categoryDto.Name} isimli Kategori güncellenirken Özellikleri eklenemedi.");
-            //    ModelState.AddModelError("", "Category could not updated");
-            //    return StatusCode(500, ModelState);
-            //}
 
             _logger.LogWarning($"UpdateCategory/Success__{category.Name} isimli_{category.Id} id'li Kategori güncellendi.");
             return NoContent();
@@ -195,6 +196,9 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "Category not found");
                 return StatusCode(404, ModelState);
             }
+
+            var imgpath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + category.ImagePath;
+            System.IO.File.Delete(imgpath);
 
             var result = await _categoryRepo.Delete(category);
             if (!result)

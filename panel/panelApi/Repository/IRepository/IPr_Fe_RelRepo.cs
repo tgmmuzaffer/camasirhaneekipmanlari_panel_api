@@ -10,6 +10,6 @@ namespace panelApi.Repository.IRepository
     public interface IPr_Fe_RelRepo : IBaseRepo<Pr_Fe_Relational>
     {
         Task<bool> CreateMultiple(List<Pr_Fe_Relational> entity);
-        Task<ICollection<int>> GetFetureIdList(Expression<Func<Pr_Fe_Relational, bool>> filter = null);
+        Task<List<int>> GetFetureIdList(Expression<Func<Pr_Fe_Relational, bool>> filter = null);
     }
 }

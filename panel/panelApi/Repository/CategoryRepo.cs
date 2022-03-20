@@ -37,15 +37,26 @@ namespace panelApi.Repository
 
         public async Task<bool> Delete(Category entity)
         {
+            using var transaction = _panelApiDbcontext.Database.BeginTransaction();
             try
             {
+                var catRels = await _panelApiDbcontext.Cat_Fe_Relatianals.AsNoTracking().Where(a => a.CategoryId == entity.Id).ToListAsync();
+                if (catRels != null && catRels.Count > 0)
+                {
+                    _panelApiDbcontext.Cat_Fe_Relatianals.RemoveRange(catRels);
+                    await _panelApiDbcontext.SaveChangesAsync();
+                }
+
                 _panelApiDbcontext.Categories.Remove(entity);
                 await _panelApiDbcontext.SaveChangesAsync();
+
+                transaction.Commit();
                 return true;
             }
             catch (Exception e)
             {
                 _logger.LogError($"CategoryRepo Delete // {e.Message}");
+                transaction.Rollback();
                 return false;
             }
         }
@@ -54,7 +65,9 @@ namespace panelApi.Repository
         {
             try
             {
-                var result = filter != null ? await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).Where(filter).FirstOrDefaultAsync() : await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).FirstOrDefaultAsync();
+                var result = filter != null ?
+                    await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).Where(filter).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync()
+                    : await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync();
                 return result;
             }
             catch (Exception e)
@@ -64,16 +77,46 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<Category>> GetList(Expression<Func<Category, bool>> filter = null)
+        public async Task<Category> GetName(int Id)
         {
             try
             {
-                var result = filter != null ? await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).Where(filter).ToListAsync() : await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).ToListAsync();
+                var result = await _panelApiDbcontext.Categories.Where(a => a.Id == Id).AsNoTracking().FirstOrDefaultAsync();
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"CategoryRepo GetName // {e.Message}");
+                return null;
+            }
+        }
+
+        public async Task<List<Category>> GetList(Expression<Func<Category, bool>> filter = null)
+        {
+            try
+            {
+                var result = filter != null
+                    ? await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).Where(filter).AsNoTracking().AsSplitQuery().ToListAsync()
+                    : await _panelApiDbcontext.Categories.Include(a => a.Products).Include(b => b.SubCategories).AsNoTracking().AsSplitQuery().ToListAsync();
                 return result;
             }
             catch (Exception e)
             {
                 _logger.LogError($"CategoryRepo GetList // {e.Message}");
+                return null;
+            }
+        }
+
+        public async Task<List<Category>> GetNameList()
+        {
+            try
+            {
+                var result = await _panelApiDbcontext.Categories.AsNoTracking().ToListAsync();
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"CategoryRepo GetNameList // {e.Message}");
                 return null;
             }
         }

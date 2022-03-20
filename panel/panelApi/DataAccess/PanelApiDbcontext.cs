@@ -7,7 +7,6 @@ namespace panelApi.DataAccess
     {
         public PanelApiDbcontext(DbContextOptions<PanelApiDbcontext>opt):base(opt)
         {
-
         }
 
         public virtual DbSet<User> Users { get; set; }
@@ -17,9 +16,6 @@ namespace panelApi.DataAccess
         public virtual DbSet<FeatureDescription> FeatureDescriptions { get; set; }
         public virtual DbSet<Feature> Features { get; set; }
         public virtual DbSet<SubCategory> SubCategories { get; set; }
-        //public virtual DbSet<ProductProperty> ProductProperties { get; set; }
-        //public virtual DbSet<PropertyDescription> PropertyDescriptions { get; set; }
-        //public virtual DbSet<PropertyCategory> PropertyCategories { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<Blog> Blogs { get; set; } 
@@ -29,6 +25,8 @@ namespace panelApi.DataAccess
         public virtual DbSet<Pr_Fe_Relational> Pr_Fe_Relationals{ get; set; }
         public virtual DbSet<Pr_FeDesc_Relational> Pr_FeDesc_Relationals{ get; set; }
         public virtual DbSet<Fe_SubCat_Relational> Fe_SubCat_Relationals{ get; set; }
-        public virtual DbSet<Log> Logs{ get; set; }
+        public virtual DbSet<AboutUs> AboutUs{ get; set; }
+        public virtual DbSet<Cat_FeDesc_Realational> Cat_FeDesc_Realationals{ get; set; }
+        public virtual DbSet<Cat_Fe_Relational> Cat_Fe_Relatianals { get; set; }
     }
 }

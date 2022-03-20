@@ -113,21 +113,41 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<ICollection<Product>> GetList(Expression<Func<Product, bool>> filter = null)
+        public async Task<List<Product>> GetList(Expression<Func<Product, bool>> filter = null)
         {
             try
             {
-                var result = filter != null ?
-                    await _panelApiDbcontext.Products
-                    .Include(a => a.Category).ThenInclude(b => b.SubCategories)
-                    .Where(filter)
-                    .OrderBy(a => a.Name)
-                    .ToListAsync()
-                    : await _panelApiDbcontext.Products
-                    .Include(a => a.Category).ThenInclude(b => b.SubCategories)
-                    .OrderBy(a => a.Name)
-                    .ToListAsync();
-                return result;
+                if (filter == null)
+                {
+                    //.Select(c => c.Features.Select(d => d.FeatureDescriptions))
+                    var result = await _panelApiDbcontext.Products.Include(a => a.Category).ThenInclude(b => b.SubCategories).ToListAsync();
+                    return result;
+                }
+                else
+                {
+                    //.Select(c => c.Features.Select(d => d.FeatureDescriptions))
+                    var result = await _panelApiDbcontext.Products.Include(a => a.Category).ThenInclude(b => b.SubCategories).Where(filter).ToListAsync();
+                    return result;
+                }
+
+
+
+
+
+
+
+
+                //var result = filter != null ?
+                //    await _panelApiDbcontext.Products
+                //    .Include(a => a.Category).ThenInclude(b => b.SubCategories)
+                //    .Where(filter)
+                //    .OrderBy(a => a.Name)
+                //    .ToListAsync()
+                //    : await _panelApiDbcontext.Products
+                //    .Include(a => a.Category).ThenInclude(b => b.SubCategories)
+                //    .OrderBy(a => a.Name)
+                //    .ToListAsync();
+                //return result;
             }
             catch (Exception e)
             {
