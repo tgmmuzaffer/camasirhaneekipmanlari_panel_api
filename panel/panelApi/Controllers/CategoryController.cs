@@ -87,6 +87,24 @@ namespace panelApi.Controllers
         [HttpGet()]
         [ProducesResponseType(200, Type = typeof(CategoryDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("getCategoryByName/{name}")]
+        public async Task<IActionResult> GetCategory(string name)
+        {
+            var result = await _categoryRepo.Get(a => a.Name == name);
+            if (result == null)
+            {
+                _logger.LogError($"GetCategory/Fail__{name} Isimli'li Kategori bulunamdı.");
+                ModelState.AddModelError("", "Category not found");
+                return StatusCode(404, ModelState);
+            }
+
+            return Ok(result);
+        }
+
+        [AllowAnonymous]
+        [HttpGet()]
+        [ProducesResponseType(200, Type = typeof(CategoryDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Route("getCategoryName/{Id}")]
         public async Task<IActionResult> GetCategoryName(int Id)
         {
