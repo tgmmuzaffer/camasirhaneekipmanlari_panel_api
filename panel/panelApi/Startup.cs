@@ -110,10 +110,10 @@ namespace panelApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
+            }
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "panelApi v1"));
-            }
-
             app.ConfigureExceptionMiddleware();
             //app.UseExceptionHandler();
             app.UseSwagger();
