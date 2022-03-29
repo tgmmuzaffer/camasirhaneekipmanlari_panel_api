@@ -92,8 +92,7 @@ namespace panelApi
                      ValidateIssuerSigningKey = true,
                      IssuerSigningKey = new SymmetricSecurityKey(key),
                      ValidateIssuer = false,
-                     ValidateAudience = false //https://www.udemy.com/course/quick-introduction-to-aspnet-mvc-core-20/learn/lecture/18078953#overview
-                     //deployda patlayabilir
+                     ValidateAudience = false 
                  };
              });
             services.AddMvcCore(opt =>
@@ -104,18 +103,16 @@ namespace panelApi
 
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogRepo logRepo)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "panelApi v1"));
+               
             }
-
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "panelApi v1"));
             app.ConfigureExceptionMiddleware();
-            //app.UseExceptionHandler();
             app.UseSwagger();
             app.UseHttpsRedirection();
             app.UseFileServer(new FileServerOptions
