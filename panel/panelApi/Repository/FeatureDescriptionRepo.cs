@@ -49,8 +49,9 @@ namespace panelApi.Repository
                     _panelApiDbcontext.Pr_FeDesc_Relationals.RemoveRange(prFeDescs);
                     await _panelApiDbcontext.SaveChangesAsync();
                 }
-
                 _panelApiDbcontext.FeatureDescriptions.Remove(entity);
+                _panelApiDbcontext.Entry(entity.Feature).State= EntityState.Unchanged;
+
                 await _panelApiDbcontext.SaveChangesAsync();
 
 
@@ -125,14 +126,18 @@ namespace panelApi.Repository
 
         public async Task<bool> Update(FeatureDescription entity)
         {
+            using var transaction = _panelApiDbcontext.Database.BeginTransaction();
+
             try
             {
                 _panelApiDbcontext.FeatureDescriptions.Update(entity);
                 await _panelApiDbcontext.SaveChangesAsync();
+                transaction.Commit();
                 return true;
             }
             catch (Exception e)
             {
+                transaction.Rollback();
                 _logger.LogError($"FeatureDescriptionRepo Update // {e.Message}");
                 return false;
             }

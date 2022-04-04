@@ -142,23 +142,23 @@ namespace panelApi.Controllers
         [Route("deletefeatureDescription/{Id}")]
         public async Task<IActionResult> DeleteFeatureDescription(int Id)
         {
-            var product = await _featureDescriptionRepo.Get(a => a.Id == Id);
-            if (product == null)
+            var featureDesc = await _featureDescriptionRepo.Get(a => a.Id == Id);
+            if (featureDesc == null)
             {
                 _logger.LogError($"DeleteFeatureDescription__{Id} Id'li ÖzellikAçıklaması bulunamdı.");
                 ModelState.AddModelError("", "FeatureDescription not found");
                 return StatusCode(404, ModelState);
             }
 
-            var result = await _featureDescriptionRepo.Delete(product);
+            var result = await _featureDescriptionRepo.Delete(featureDesc);
             if (!result)
             {
-                _logger.LogError($"DeleteFeatureDescription/Fail__{product.FeatureDesc} isimli ÖzellikAçıklaması silinirken hata oluştu.");
+                _logger.LogError($"DeleteFeatureDescription/Fail__{featureDesc.FeatureDesc} isimli ÖzellikAçıklaması silinirken hata oluştu.");
                 ModelState.AddModelError("", "FeatureDescription could not deleted");
                 return StatusCode(500, ModelState);
             }
 
-            _logger.LogWarning($"DeleteFeatureDescription/Success__{product.FeatureDesc} isimli ÖzellikAçıklaması silindi.");
+            _logger.LogWarning($"DeleteFeatureDescription/Success__{featureDesc.FeatureDesc} isimli ÖzellikAçıklaması silindi.");
             return NoContent();
         }
     }
