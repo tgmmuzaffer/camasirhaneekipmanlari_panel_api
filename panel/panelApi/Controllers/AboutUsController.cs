@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
@@ -19,9 +21,12 @@ namespace panelApi.Controllers
         private readonly IAboutUsRepo _aboutusrepo;
         private readonly ILogger<AboutUsController> _logger;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IMemoryCache _memoryCache;
 
-        public AboutUsController(IAboutUsRepo aboutusrepo, IWebHostEnvironment hostingEnvironment, ILogger<AboutUsController> logger)
+
+        public AboutUsController(IAboutUsRepo aboutusrepo, IWebHostEnvironment hostingEnvironment, ILogger<AboutUsController> logger, IMemoryCache memoryCache)
         {
+            _memoryCache = memoryCache;
             _aboutusrepo = aboutusrepo;
             _logger = logger;
             _hostingEnvironment = hostingEnvironment;
@@ -86,15 +91,44 @@ namespace panelApi.Controllers
         [Route("getAboutUs")]
         public async Task<IActionResult> GetAboutUs()
         {
-            var result = await _aboutusrepo.Get();
-            if (result == null)
+            string key = "gaus";
+            var aboutus = new AboutUs();
+            var ur = HttpContext.Request.GetDisplayUrl();
+            if (ur.Contains("panel"))
             {
-                _logger.LogError($"GetAboutUs/Fail__ Hakkımızda bulunamdı.");
-                ModelState.AddModelError("", "AboutUs not found");
-                return StatusCode(404, ModelState);
+                aboutus = await _aboutusrepo.Get();
+                if (aboutus == null)
+                {
+                    _logger.LogError($"GetAboutUs/Fail__ Hakkımızda bulunamdı.");
+                    ModelState.AddModelError("", "AboutUs not found");
+                    return StatusCode(404, ModelState);
+                }
+            }
+            else if (_memoryCache.TryGetValue(key, out aboutus))
+            {
+                return Ok(aboutus);
+
+            }
+            else
+            {
+                aboutus = await _aboutusrepo.Get();
+                if (aboutus == null)
+                {
+                    _logger.LogError($"GetAboutUs/Fail__ Hakkımızda bulunamdı.");
+                    ModelState.AddModelError("", "AboutUs not found");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(key, aboutus, cacheExpiryOptions);
             }
 
-            return Ok(result);
+            return Ok(aboutus);
         }
 
         [Authorize]

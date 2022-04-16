@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
+using System;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -14,8 +17,11 @@ namespace panelApi.Controllers
     {
         private readonly ILogger<ContactController> _logger;
         private readonly IContactRepo _contactRepo;
-        public ContactController(IContactRepo contactRepo, ILogger<ContactController> logger)
+        private readonly IMemoryCache _memoryCache;
+
+        public ContactController(IContactRepo contactRepo, ILogger<ContactController> logger, IMemoryCache memoryCache)
         {
+            _memoryCache = memoryCache;
             _contactRepo = contactRepo;
             _logger = logger;
         }
@@ -35,7 +41,7 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "Contact already exist");
                 return StatusCode(404, ModelState);
             }
-            
+
             var result = await _contactRepo.Create(contact);
             if (result == null)
             {
@@ -56,15 +62,45 @@ namespace panelApi.Controllers
         [Route("getContact")]
         public async Task<IActionResult> GetContact()
         {
-            var result = await _contactRepo.Get();
-            if (result == null)
+            string key = "gc";
+            var contact = new Contact();
+            var ur = HttpContext.Request.GetDisplayUrl();
+            if (ur.Contains("panel"))
             {
-                _logger.LogError($"GetContact/Fail__ Id'li İletişim Bilgisi bulunamdı.");
-                ModelState.AddModelError("", "Contact not found");
-                return StatusCode(404, ModelState);
+                contact = await _contactRepo.Get();
+                if (contact == null)
+                {
+                    _logger.LogError($"GetContact/Fail__ Id'li İletişim Bilgisi bulunamdı.");
+                    ModelState.AddModelError("", "Contact not found");
+                    return StatusCode(404, ModelState);
+                }
+
+            }
+            else if (_memoryCache.TryGetValue(key, out contact))
+            {
+                return Ok(contact);
+
+            }
+            else
+            {
+                contact = await _contactRepo.Get();
+                if (contact == null)
+                {
+                    _logger.LogError($"GetContact/Fail__ Id'li İletişim Bilgisi bulunamdı.");
+                    ModelState.AddModelError("", "Contact not found");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(key, contact, cacheExpiryOptions);
             }
 
-            return Ok(result);
+            return Ok(contact);
         }
 
         [AllowAnonymous]

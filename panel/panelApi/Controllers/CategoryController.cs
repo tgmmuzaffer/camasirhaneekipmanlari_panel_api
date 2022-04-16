@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -18,9 +21,11 @@ namespace panelApi.Controllers
         private readonly ICategoryRepo _categoryRepo;
         private readonly ILogger<CategoryController> _logger;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IMemoryCache _memoryCache;
 
-        public CategoryController(ICategoryRepo categoryRepo, IWebHostEnvironment hostingEnvironment, ILogger<CategoryController> logger)
+        public CategoryController(ICategoryRepo categoryRepo, IWebHostEnvironment hostingEnvironment, ILogger<CategoryController> logger, IMemoryCache memoryCache)
         {
+            _memoryCache = memoryCache;
             _categoryRepo = categoryRepo;
             _logger = logger;
             _hostingEnvironment = hostingEnvironment;
@@ -144,15 +149,45 @@ namespace panelApi.Controllers
         [Route("getAllCategoriesName")]
         public async Task<IActionResult> GetAllCategoriesName()
         {
-            var result = await _categoryRepo.GetNameList();
-            if (result == null)
+            string key = "gac";
+            var categories = new List<Category>();
+            var ur = HttpContext.Request.GetDisplayUrl();
+            if (ur.Contains("panel"))
             {
-                _logger.LogError("GetAllCategoriesName/Fail__Kategoriler bulunamdı.");
-                ModelState.AddModelError("", "Category not found");
-                return StatusCode(404, ModelState);
+                categories = await _categoryRepo.GetNameList();
+                if (categories == null)
+                {
+                    _logger.LogError("GetAllCategoriesName/Fail__Kategoriler bulunamdı.");
+                    ModelState.AddModelError("", "Category not found");
+                    return StatusCode(404, ModelState);
+                }
+            }
+            else if (_memoryCache.TryGetValue(key, out categories))
+            {
+                return Ok(categories);
+
+            }
+            else
+            {
+                categories = await _categoryRepo.GetNameList();
+                if (categories == null)
+                {
+                    _logger.LogError("GetAllCategoriesName/Fail__Kategoriler bulunamdı.");
+                    ModelState.AddModelError("", "Category not found");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(key, categories, cacheExpiryOptions);
             }
 
-            return Ok(result);
+
+            return Ok(categories);
         }
 
         [Authorize]

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
@@ -17,9 +19,11 @@ namespace panelApi.Controllers
     {
         private readonly IFeatureRepo _featureRepo;
         private readonly ILogger<FeatureController> _logger;
+        private readonly IMemoryCache _memoryCache;
 
-        public FeatureController(IFeatureRepo productRepo, ILogger<FeatureController> logger)
+        public FeatureController(IFeatureRepo productRepo, ILogger<FeatureController> logger, IMemoryCache memoryCache)
         {
+            _memoryCache = memoryCache;
             _featureRepo = productRepo;
             _logger = logger;
         }
@@ -77,15 +81,44 @@ namespace panelApi.Controllers
         [Route("getFeatureByName/{name}")]
         public async Task<IActionResult> GetFeatureByName(string name)
         {
-            var result = await _featureRepo.Get(a => a.Name == name);
-            if (result == null)
+            string key = "gaf";
+            var feature = new Feature();
+            var ur = HttpContext.Request.GetDisplayUrl();
+            if (ur.Contains("panel"))
             {
-                _logger.LogError($"GetFeature/Fail__{name} Id'li Özellik bulunamdı.");
-                ModelState.AddModelError("", "Feature not found");
-                return StatusCode(404, ModelState);
+                feature = await _featureRepo.Get(a => a.Name == name);
+                if (feature == null)
+                {
+                    _logger.LogError($"GetFeature/Fail__{name} Id'li Özellik bulunamdı.");
+                    ModelState.AddModelError("", "Feature not found");
+                    return StatusCode(404, ModelState);
+                }
+            }
+            else if (_memoryCache.TryGetValue(key, out feature))
+            {
+                return Ok(feature);
+
+            }
+            else
+            {
+                feature = await _featureRepo.Get(a => a.Name == name);
+                if (feature == null)
+                {
+                    _logger.LogError($"GetFeature/Fail__{name} Id'li Özellik bulunamdı.");
+                    ModelState.AddModelError("", "Feature not found");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(key, feature, cacheExpiryOptions);
             }
 
-            return Ok(result);
+            return Ok(feature);
         }
 
         [AllowAnonymous]
@@ -95,15 +128,45 @@ namespace panelApi.Controllers
         [Route("getAllFeatures")]
         public async Task<IActionResult> GetAllFeatures()
         {
-            var result = await _featureRepo.GetList();
-            if (result==null)
+            string key = "gaf";
+            var features = new List<Feature>();
+            var ur = HttpContext.Request.GetDisplayUrl();
+            if (ur.Contains("panel"))
             {
-                _logger.LogError("GetAllFeatures/Fail__Özellikler bulunamdı.", "");
-                ModelState.AddModelError("", "Feature not found");
-                return StatusCode(404, ModelState);
+                features = await _featureRepo.GetList();
+                if (features == null)
+                {
+                    _logger.LogError("GetAllFeatures/Fail__Özellikler bulunamdı.", "");
+                    ModelState.AddModelError("", "Feature not found");
+                    return StatusCode(404, ModelState);
+                }
+            }
+            else if (_memoryCache.TryGetValue(key, out features))
+            {
+                return Ok(features);
+
+            }
+            else
+            {
+                features = await _featureRepo.GetList();
+                if (features == null)
+                {
+                    _logger.LogError("GetAllFeatures/Fail__Özellikler bulunamdı.", "");
+                    ModelState.AddModelError("", "Feature not found");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(key, features, cacheExpiryOptions);
             }
 
-            return Ok(result);
+
+            return Ok(features);
         }
 
         [AllowAnonymous]
@@ -113,7 +176,7 @@ namespace panelApi.Controllers
         [Route("getFeaturesBySubCatId/{Id}")]
         public async Task<IActionResult> GetAllFeaturesBySubCatId(int Id)
         {
-            var result = await _featureRepo.GetList(a=>a.SubCategories.All(b=>b.Id==Id));
+            var result = await _featureRepo.GetList(a => a.SubCategories.All(b => b.Id == Id));
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllFeatures/Fail__Özellikler bulunamdı.", "");
@@ -131,8 +194,8 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("updateFeature")]
         public async Task<IActionResult> UpdateFeature([FromBody] Feature feature)
-        {   
-            var result = await _featureRepo.Update(feature);           
+        {
+            var result = await _featureRepo.Update(feature);
             if (!result)
             {
                 _logger.LogError($"UpdateFeature/Fail__{feature.Name} isimli Özellik güncellenirken hata meydana geldi.");
@@ -141,7 +204,7 @@ namespace panelApi.Controllers
             }
 
             var featureList = await _featureRepo.GetList();
-            if(featureList == null)
+            if (featureList == null)
             {
                 _logger.LogError("UpdateFeature/Fail__Özellikler bulunamdı.", "");
                 ModelState.AddModelError("", "Feature not found");

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
@@ -17,9 +19,11 @@ namespace panelApi.Controllers
     {
         private readonly IFeatureDescriptionRepo _featureDescriptionRepo;
         private readonly ILogger<FeatureDescriptionController> _logger;
+        private readonly IMemoryCache _memoryCache;
 
-        public FeatureDescriptionController(IFeatureDescriptionRepo featureDescriptionRepo, ILogger<FeatureDescriptionController> logger)
+        public FeatureDescriptionController(IFeatureDescriptionRepo featureDescriptionRepo, ILogger<FeatureDescriptionController> logger, IMemoryCache memoryCache)
         {
+            _memoryCache = memoryCache;
             _featureDescriptionRepo = featureDescriptionRepo;
             _logger = logger;
         }
@@ -95,15 +99,45 @@ namespace panelApi.Controllers
         [Route("getAllfeatureDescriptionsByFeatureId/{Id}")]
         public async Task<IActionResult> GetAllFeatureDescriptionsByFeatureId(int Id)
         {
-            var result = await _featureDescriptionRepo.GetList(a=>a.FeatureId==Id);
-            if (result.Count < 0)
+            string key = "getAllfeatureDescriptionsByFeatureId"+ Id.ToString();
+            var featuredescription = new List<FeatureDescription>();
+            var ur = HttpContext.Request.GetDisplayUrl();
+            if (ur.Contains("panel"))
             {
-                _logger.LogError("GetAllFeatureDescriptionsByFeatureId/Fail__ÖzellikAçıklamaları bulunamdı.", "");
-                ModelState.AddModelError("", "FeatureDescription not found");
-                return StatusCode(404, ModelState);
+                featuredescription = await _featureDescriptionRepo.GetList(a => a.FeatureId == Id);
+                if (featuredescription.Count < 0)
+                {
+                    _logger.LogError("GetAllFeatureDescriptionsByFeatureId/Fail__ÖzellikAçıklamaları bulunamdı.", "");
+                    ModelState.AddModelError("", "FeatureDescription not found");
+                    return StatusCode(404, ModelState);
+                }
+            }
+            else if (_memoryCache.TryGetValue(key, out featuredescription))
+            {
+                return Ok(featuredescription);
+
+            }
+            else
+            {
+                featuredescription = await _featureDescriptionRepo.GetList(a => a.FeatureId == Id);
+                if (featuredescription.Count < 0)
+                {
+                    _logger.LogError("GetAllFeatureDescriptionsByFeatureId/Fail__ÖzellikAçıklamaları bulunamdı.", "");
+                    ModelState.AddModelError("", "FeatureDescription not found");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(key, featuredescription, cacheExpiryOptions);
             }
 
-            return Ok(result);
+
+                return Ok(featuredescription);
         }
 
         [Authorize]

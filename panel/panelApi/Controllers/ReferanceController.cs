@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -18,9 +21,11 @@ namespace panelApi.Controllers
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IReferanceRepo _referanceRepo;
         private readonly ILogger<ReferanceController> _logger;
+        private readonly IMemoryCache _memoryCache;
 
-        public ReferanceController(IReferanceRepo referanceRepo, IWebHostEnvironment hostingEnvironment, ILogger<ReferanceController> logger)
+        public ReferanceController(IReferanceRepo referanceRepo, IWebHostEnvironment hostingEnvironment, ILogger<ReferanceController> logger, IMemoryCache memoryCache)
         {
+            _memoryCache = memoryCache;
             _referanceRepo = referanceRepo;
             _hostingEnvironment = hostingEnvironment;
             _logger = logger;
@@ -93,15 +98,44 @@ namespace panelApi.Controllers
         [Route("getAllReferances")]
         public async Task<IActionResult> GetAllReferances()
         {
-            var result = await _referanceRepo.GetList();
-            if (result.Count < 0)
+            string key = "gar";
+            var refrences = new List<Referance>();
+            var ur = HttpContext.Request.GetDisplayUrl();
+            if (ur.Contains("panel"))
             {
-                _logger.LogError("GetAllReferances/Fail__Referanslar bulunamdı.");
-                ModelState.AddModelError("", "Referance not found");
-                return StatusCode(404, ModelState);
+                refrences = await _referanceRepo.GetList();
+                if (refrences.Count < 0)
+                {
+                    _logger.LogError("GetAllReferances/Fail__Referanslar bulunamdı.");
+                    ModelState.AddModelError("", "Referance not found");
+                    return StatusCode(404, ModelState);
+                }
+            }
+            else if (_memoryCache.TryGetValue(key, out refrences))
+            {
+                return Ok(refrences);
+
+            }
+            else
+            {
+                refrences = await _referanceRepo.GetList();
+                if (refrences.Count < 0)
+                {
+                    _logger.LogError("GetAllReferances/Fail__Referanslar bulunamdı.");
+                    ModelState.AddModelError("", "Referance not found");
+                    return StatusCode(404, ModelState);
+                }
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(key, refrences, cacheExpiryOptions);
             }
 
-            return Ok(result);
+
+            return Ok(refrences);
         }
 
         [Authorize]

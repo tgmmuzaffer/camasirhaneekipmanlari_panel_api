@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
@@ -115,7 +116,7 @@ namespace panelApi.Controllers
         [Route("getProductsByCatId/{Id}")]
         public async Task<IActionResult> GetProductsByCatId(int Id)
         {
-            var cacheKey = Security.ProductByCatCache+Id;
+            var cacheKey = Security.ProductByCatCache + Id;
             //ProductList productList = new();
             if (!_memoryCache.TryGetValue(cacheKey, out List<Product> product))
             {
@@ -164,7 +165,7 @@ namespace panelApi.Controllers
         [Route("getProductsBySubCatId/{Id}")]
         public async Task<IActionResult> GetProductsBySubCatId(int Id)
         {
-            var cacheKey = Security.ProductBySubCatCache+Id;
+            var cacheKey = Security.ProductBySubCatCache + Id;
             //ProductList productList = new();
             if (!_memoryCache.TryGetValue(cacheKey, out List<Product> product))
             {
@@ -226,9 +227,9 @@ namespace panelApi.Controllers
                 //    product.Features.Add(feature);
                 //}
                 //product.Products = await _productRepo.GetList(a => a.CategoryId == Id);
-                var productFeRels = await _pr_FeDesc_RelRepo.GetList(a=>a.FeatureDescriptionId==Id);
+                var productFeRels = await _pr_FeDesc_RelRepo.GetList(a => a.FeatureDescriptionId == Id);
                 var productIds = productFeRels.Select(b => b.ProductId).ToList();
-                product = await _productRepo.GetList(a => productIds.Any(b=>b==a.Id));
+                product = await _productRepo.GetList(a => productIds.Any(b => b == a.Id));
                 foreach (var item in product)
                 {
                     item.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == item.Id);
@@ -264,26 +265,65 @@ namespace panelApi.Controllers
         [Route("getAllProducts")]
         public async Task<IActionResult> GetAllProducts()
         {
-            List<Product> result = new();
-            result = await _productRepo.GetList();
-            foreach (var item in result)
+            string key = "gas";
+            var result = new List<Product>();
+            var ur = HttpContext.Request.GetDisplayUrl();
+            if (ur.Contains("panel"))
             {
-                item.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == item.Id);
-                var feature_IdList = await _pr_Fe_RelRepo.GetFetureIdList(a => a.ProductId == item.Id);
-                item.Pr_FeDesc_Relationals = await _pr_FeDesc_RelRepo.GetList(a => a.ProductId == item.Id);
-                var featureDesc_IdList = await _pr_FeDesc_RelRepo.GetFeatureDescIdList(a => a.ProductId == item.Id);
+                result = await _productRepo.GetList();
+                foreach (var item in result)
+                {
+                    item.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == item.Id);
+                    var feature_IdList = await _pr_Fe_RelRepo.GetFetureIdList(a => a.ProductId == item.Id);
+                    item.Pr_FeDesc_Relationals = await _pr_FeDesc_RelRepo.GetList(a => a.ProductId == item.Id);
+                    var featureDesc_IdList = await _pr_FeDesc_RelRepo.GetFeatureDescIdList(a => a.ProductId == item.Id);
 
-                item.Feature = await _featureRepo.GetList(s => feature_IdList.Contains(s.Id));
-                item.FeatureDescriptions = await _featureDescriptionRepo.GetList(f => featureDesc_IdList.Contains(f.Id));
+                    item.Feature = await _featureRepo.GetList(s => feature_IdList.Contains(s.Id));
+                    item.FeatureDescriptions = await _featureDescriptionRepo.GetList(f => featureDesc_IdList.Contains(f.Id));
+                }
+                if (result.Count < 0)
+                {
+                    _logger.LogError("GetAllProducts/Fail__Ürünler bulunamdı.", "");
+                    ModelState.AddModelError("", "Product not found");
+                    return StatusCode(404, ModelState);
+                }
             }
-            if (result.Count < 0)
+            else if (_memoryCache.TryGetValue(key, out result))
             {
-                _logger.LogError("GetAllProducts/Fail__Ürünler bulunamdı.", "");
-                ModelState.AddModelError("", "Product not found");
-                return StatusCode(404, ModelState);
+                return Ok(result);
+
+            }
+            else
+            {
+                result = await _productRepo.GetList();
+                foreach (var item in result)
+                {
+                    item.Pr_Fe_Relationals = await _pr_Fe_RelRepo.GetList(a => a.ProductId == item.Id);
+                    var feature_IdList = await _pr_Fe_RelRepo.GetFetureIdList(a => a.ProductId == item.Id);
+                    item.Pr_FeDesc_Relationals = await _pr_FeDesc_RelRepo.GetList(a => a.ProductId == item.Id);
+                    var featureDesc_IdList = await _pr_FeDesc_RelRepo.GetFeatureDescIdList(a => a.ProductId == item.Id);
+
+                    item.Feature = await _featureRepo.GetList(s => feature_IdList.Contains(s.Id));
+                    item.FeatureDescriptions = await _featureDescriptionRepo.GetList(f => featureDesc_IdList.Contains(f.Id));
+                }
+                if (result.Count < 0)
+                {
+                    _logger.LogError("GetAllProducts/Fail__Ürünler bulunamdı.", "");
+                    ModelState.AddModelError("", "Product not found");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(key, result, cacheExpiryOptions);
             }
 
-            return Ok(result);
+
+                return Ok(result);
         }
 
         //[AllowAnonymous]

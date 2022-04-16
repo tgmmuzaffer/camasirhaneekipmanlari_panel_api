@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -18,9 +21,11 @@ namespace panelApi.Controllers
         private readonly ISliderRepo _sliderRepo;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly ILogger<SliderController> _logger;
+        private readonly IMemoryCache _memoryCache;
 
-        public SliderController(ISliderRepo sliderRepo, IWebHostEnvironment hostingEnvironment, ILogger<SliderController> logger)
+        public SliderController(ISliderRepo sliderRepo, IWebHostEnvironment hostingEnvironment, ILogger<SliderController> logger, IMemoryCache memoryCache)
         {
+            _memoryCache = memoryCache;
             _sliderRepo = sliderRepo;
             _hostingEnvironment = hostingEnvironment;
             _logger = logger;
@@ -87,34 +92,66 @@ namespace panelApi.Controllers
         [Route("getAllSliders")]
         public async Task<IActionResult> GetAllSliders()
         {
-            var result = await _sliderRepo.GetList();
-            if (result.Count < 0)
+            string key = "gas";
+            var slider = new List<Slider>();
+            var ur = HttpContext.Request.GetDisplayUrl();
+            if (ur.Contains("panel"))
             {
-                _logger.LogError("GetAllSliders/Fail__Sliderlar bulunamdı.");
-                ModelState.AddModelError("", "Sliders not found");
-                return StatusCode(404, ModelState);
+                slider = await _sliderRepo.GetList();
+                if (slider.Count < 0)
+                {
+                    _logger.LogError("GetAllSliders/Fail__Sliderlar bulunamdı.");
+                    ModelState.AddModelError("", "Sliders not found");
+                    return StatusCode(404, ModelState);
+                }
+            }
+            else if (_memoryCache.TryGetValue(key, out slider))
+            {
+                return Ok(slider);
+
+            }
+            else
+            {
+                slider = await _sliderRepo.GetList();
+                if (slider.Count < 0)
+                {
+                    _logger.LogError("GetAllSliders/Fail__Sliderlar bulunamdı.");
+                    ModelState.AddModelError("", "Sliders not found");
+                    return StatusCode(404, ModelState);
+                }
+
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTime.Now.AddHours(1),
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                };
+                _memoryCache.Set(key, slider, cacheExpiryOptions);
+
             }
 
-            return Ok(result);
+
+
+            return Ok(slider);
         }
 
-        [AllowAnonymous]
-        [HttpGet]
-        [ProducesResponseType(200, Type = typeof(Slider))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Route("getAllSliders/{isshow}")]
-        public async Task<IActionResult> GetAllSliders(bool isshow)
-        {
-            var result = await _sliderRepo.GetList(a => a.IsShow == isshow);
-            if (result.Count < 0)
-            {
-                _logger.LogError("GetAllSliders/Fail__Gösterilecek Sliderlar bulunamdı.");
-                ModelState.AddModelError("", "Sliders not found");
-                return StatusCode(404, ModelState);
-            }
+        //[AllowAnonymous]
+        //[HttpGet]
+        //[ProducesResponseType(200, Type = typeof(Slider))]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[Route("getAllSliders/{isshow}")]
+        //public async Task<IActionResult> GetAllSliders(bool isshow, bool fromcache = default)
+        //{
+        //    var result = await _sliderRepo.GetList(a => a.IsShow == isshow);
+        //    if (result.Count < 0)
+        //    {
+        //        _logger.LogError("GetAllSliders/Fail__Gösterilecek Sliderlar bulunamdı.");
+        //        ModelState.AddModelError("", "Sliders not found");
+        //        return StatusCode(404, ModelState);
+        //    }
 
-            return Ok(result);
-        }
+        //    return Ok(result);
+        //}
 
         [Authorize]
         [HttpPost]
