@@ -80,7 +80,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<List<Pr_FeDesc_Relational>> GetList(Expression<Func<Pr_FeDesc_Relational, bool>> filter = null)
+        public async Task<List<Pr_FeDesc_Relational>> GetListWithRelatedEntity(Expression<Func<Pr_FeDesc_Relational, bool>> filter = null)
         {
             try
             {
@@ -91,7 +91,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"Pr_FeDesc_RelRepo GetList // {e.Message}");
+                _logger.LogError($"Pr_FeDesc_RelRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }

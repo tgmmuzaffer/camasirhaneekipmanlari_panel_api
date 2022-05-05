@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
-using panelApi.Models.Dtos;
 using panelApi.Repository.IRepository;
 using System;
 using System.Collections.Generic;
@@ -97,7 +96,7 @@ namespace panelApi.Controllers
             var ur = HttpContext.Request.GetDisplayUrl();
             if (ur.Contains("panel"))
             {
-                slider = await _sliderRepo.GetList();
+                slider = await _sliderRepo.GetListWithRelatedEntity();
                 if (slider.Count < 0)
                 {
                     _logger.LogError("GetAllSliders/Fail__Sliderlar bulunamdı.");
@@ -112,7 +111,7 @@ namespace panelApi.Controllers
             }
             else
             {
-                slider = await _sliderRepo.GetList();
+                slider = await _sliderRepo.GetListWithRelatedEntity();
                 if (slider.Count < 0)
                 {
                     _logger.LogError("GetAllSliders/Fail__Sliderlar bulunamdı.");

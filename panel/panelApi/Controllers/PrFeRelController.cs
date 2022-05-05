@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -69,7 +67,7 @@ namespace panelApi.Controllers
         [Route("getAllPrFes")]
         public async Task<IActionResult> GetAllPrFes()
         {
-            var result = await _pr_Fe_RelRepo.GetList();
+            var result = await _pr_Fe_RelRepo.GetListWithRelatedEntity();
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllPrFes/Fail__Pr_Fe bulunamdı.", "");

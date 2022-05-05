@@ -181,7 +181,7 @@ namespace panelApi.Controllers
                     var result = await _userRepo.Update(user);
                     if (!result)
                     {
-                        if(userdata.UserName!= user.UserName)
+                        if (userdata.UserName != user.UserName)
                         {
                             _logger.LogError($"UpdateMyDataContent/Fail__{userdata.UserName} isimli Kullanıcı Adı {userDto.UserName} olarak değiştirilemdi.");
                         }
@@ -248,7 +248,7 @@ namespace panelApi.Controllers
 
             UserDto userDto = new UserDto
             { Id = userData.Id, Password = userData.Password, RoleId = role.Id, UserName = userData.UserName, Salt = userData.Salt };
-           
+
             return Ok(userDto);
         }
 
@@ -266,7 +266,7 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "User not found");
                 return StatusCode(404, ModelState);
             }
-            var role = await _roleRepo.GetRole(r => r.Id == userData.RoleId);            
+            var role = await _roleRepo.GetRole(r => r.Id == userData.RoleId);
             if (role == null)
             {
                 _logger.LogError($"GetByResetPass/Fail__{userData.UserName} isismli Kullanıcı bulunamdı.");

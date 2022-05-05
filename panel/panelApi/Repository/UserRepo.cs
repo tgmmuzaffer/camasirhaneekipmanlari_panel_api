@@ -103,7 +103,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"UserRepo GetList // {e.Message}");
+                _logger.LogError($"UserRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }

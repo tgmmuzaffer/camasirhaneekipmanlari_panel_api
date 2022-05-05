@@ -91,7 +91,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<List<Category>> GetList(Expression<Func<Category, bool>> filter = null)
+        public async Task<List<Category>> GetListWithRelatedEntity(Expression<Func<Category, bool>> filter = null)
         {
             try
             {
@@ -102,7 +102,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"CategoryRepo GetList // {e.Message}");
+                _logger.LogError($"CategoryRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }

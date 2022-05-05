@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace panelApi.Models
 {
@@ -11,9 +7,9 @@ namespace panelApi.Models
         public int Id { get; set; }
         public int ProductId { get; set; }
         [NotMapped]
-        public Product Product{ get; set; }
+        public Product Product { get; set; }
         public int FeatureId { get; set; }
         [NotMapped]
-        public Feature Feature{ get; set; }
+        public Feature Feature { get; set; }
     }
 }

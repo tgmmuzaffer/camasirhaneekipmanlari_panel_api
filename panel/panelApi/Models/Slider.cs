@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace panelApi.Models
 {
-    public class Slider :IEntity
+    public class Slider : IEntity
     {
         public int Id { get; set; }
         public string SliderName { get; set; }

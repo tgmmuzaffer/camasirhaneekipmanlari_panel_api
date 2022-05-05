@@ -103,7 +103,7 @@ namespace panelApi.Controllers
             var ur = HttpContext.Request.GetDisplayUrl();
             if (ur.Contains("panel"))
             {
-                refrences = await _referanceRepo.GetList();
+                refrences = await _referanceRepo.GetListWithRelatedEntity();
                 if (refrences.Count < 0)
                 {
                     _logger.LogError("GetAllReferances/Fail__Referanslar bulunamdı.");
@@ -118,7 +118,7 @@ namespace panelApi.Controllers
             }
             else
             {
-                refrences = await _referanceRepo.GetList();
+                refrences = await _referanceRepo.GetListWithRelatedEntity();
                 if (refrences.Count < 0)
                 {
                     _logger.LogError("GetAllReferances/Fail__Referanslar bulunamdı.");

@@ -57,13 +57,13 @@ namespace panelApi.Repository
                 }
 
                 var fetureDescs = await _panelApiDbcontext.FeatureDescriptions.AsNoTracking().Where(a => a.FeatureId == entity.Id).ToListAsync();
-                if(fetureDescs !=null && fetureDescs.Count > 0)
+                if (fetureDescs != null && fetureDescs.Count > 0)
                 {
                     var featureDescIds = fetureDescs.Select(a => a.Id).ToList();
                     foreach (var item in featureDescIds)
                     {
                         var prFeDescRels = await _panelApiDbcontext.Pr_FeDesc_Relationals.AsNoTracking().Where(a => a.FeatureDescriptionId == item).ToListAsync();
-                        if(prFeDescRels != null && prFeDescRels.Count > 0)
+                        if (prFeDescRels != null && prFeDescRels.Count > 0)
                         {
                             _panelApiDbcontext.Pr_FeDesc_Relationals.RemoveRange(prFeDescRels);
                             await _panelApiDbcontext.SaveChangesAsync();
@@ -75,7 +75,7 @@ namespace panelApi.Repository
                 }
 
                 var prFes = await _panelApiDbcontext.Pr_Fe_Relationals.AsNoTracking().Where(a => a.FeatureId == entity.Id).ToListAsync();
-                if(prFes!=null && prFes.Count > 0)
+                if (prFes != null && prFes.Count > 0)
                 {
                     _panelApiDbcontext.Pr_Fe_Relationals.RemoveRange(prFes);
                     await _panelApiDbcontext.SaveChangesAsync();
@@ -122,7 +122,7 @@ namespace panelApi.Repository
 
         }
 
-        public async Task<List<Feature>> GetList(Expression<Func<Feature, bool>> filter = null)
+        public async Task<List<Feature>> GetListWithRelatedEntity(Expression<Func<Feature, bool>> filter = null)
         {
             try
             {
@@ -140,7 +140,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"FeatureRepo GetList // {e.Message}");
+                _logger.LogError($"FeatureRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
 

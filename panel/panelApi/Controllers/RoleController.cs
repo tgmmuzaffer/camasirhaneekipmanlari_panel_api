@@ -17,7 +17,7 @@ namespace panelApi.Controllers
 
         public RoleController(IRoleRepo roleRepo, ILogger<RoleController> logger)
         {
-            _roleRepo=roleRepo;
+            _roleRepo = roleRepo;
             _logger = logger;
         }
 
@@ -28,7 +28,7 @@ namespace panelApi.Controllers
         [Route("getRoles")]
         public async Task<IActionResult> GetAllRoles()
         {
-            var result =await _roleRepo.GetRoles();
+            var result = await _roleRepo.GetRoles();
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllRoles/Fail__Roller bulunamdı.");
@@ -47,7 +47,7 @@ namespace panelApi.Controllers
         public async Task<IActionResult> GetRole(int Id)
         {
             var result = await _roleRepo.GetRole();
-            if (result!=null)
+            if (result != null)
             {
                 _logger.LogError($"GetRole/Fail__{Id} Id'li Rol bulunamdı.");
                 ModelState.AddModelError("", "Property not found");

@@ -67,7 +67,7 @@ namespace panelApi.Repository
 
         }
 
-        public async Task<List<Contact>> GetList(Expression<Func<Contact, bool>> filter = null)
+        public async Task<List<Contact>> GetListWithRelatedEntity(Expression<Func<Contact, bool>> filter = null)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"ContactRepo GetList // {e.Message}");
+                _logger.LogError($"ContactRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }

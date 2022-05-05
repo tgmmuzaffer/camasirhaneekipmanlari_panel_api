@@ -54,7 +54,7 @@ namespace panelApi.Repository
         {
             try
             {
-                var result = filter != null ? 
+                var result = filter != null ?
                     await _panelApiDbcontext.SubCategories
                     .Include(a => a.Category)
                     .Include(b => b.Features)
@@ -75,13 +75,13 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<List<SubCategory>> GetList(Expression<Func<SubCategory, bool>> filter = null)
+        public async Task<List<SubCategory>> GetListWithRelatedEntity(Expression<Func<SubCategory, bool>> filter = null)
         {
             try
             {
                 var result = filter != null
                     ? await _panelApiDbcontext.SubCategories
-                    .Include(a=>a.Category)
+                    .Include(a => a.Category)
                     .Where(filter)
                     .AsNoTracking().ToListAsync()
                     : await _panelApiDbcontext.SubCategories
@@ -91,7 +91,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"SubCategoryRepo GetList // {e.Message}");
+                _logger.LogError($"SubCategoryRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }
@@ -129,9 +129,9 @@ namespace panelApi.Repository
         {
             try
             {
-              int result = filter ==null ? 
-                    await _panelApiDbcontext.SubCategories.Where(filter).AsNoTracking().Select(a=>a.CategoryId).FirstOrDefaultAsync() :
-                    await _panelApiDbcontext.SubCategories.AsNoTracking().Select(a=>a.CategoryId).FirstOrDefaultAsync();
+                int result = filter == null ?
+                      await _panelApiDbcontext.SubCategories.Where(filter).AsNoTracking().Select(a => a.CategoryId).FirstOrDefaultAsync() :
+                      await _panelApiDbcontext.SubCategories.AsNoTracking().Select(a => a.CategoryId).FirstOrDefaultAsync();
 
                 return result;
             }

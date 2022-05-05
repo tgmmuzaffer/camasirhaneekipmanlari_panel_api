@@ -67,18 +67,18 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<List<AboutUs>> GetList(Expression<Func<AboutUs, bool>> filter = null)
+        public async Task<List<AboutUs>> GetListWithRelatedEntity(Expression<Func<AboutUs, bool>> filter = null)
         {
             try
             {
-                var result = filter != null 
+                var result = filter != null
                     ? await _panelApiDbcontext.AboutUs.Where(filter).AsNoTracking().ToListAsync()
                     : await _panelApiDbcontext.AboutUs.AsNoTracking().ToListAsync();
                 return result;
             }
             catch (Exception e)
             {
-                _logger.LogError($"AboutUsRepo GetList // {e.Message}");
+                _logger.LogError($"AboutUsRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }

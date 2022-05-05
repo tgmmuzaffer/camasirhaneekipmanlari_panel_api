@@ -110,7 +110,7 @@ namespace panelApi.Controllers
         [Route("getAllContacts")]
         public async Task<IActionResult> GetAllContacts()
         {
-            var result = await _contactRepo.GetList();
+            var result = await _contactRepo.GetListWithRelatedEntity();
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllContacts/Fail__İletişim Bilgileri bulunamdı.");

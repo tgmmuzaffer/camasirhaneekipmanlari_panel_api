@@ -1,27 +1,23 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
 {
-    
-   [Route("api/subcategory")]
+
+    [Route("api/subcategory")]
     [ApiController]
     public class SubCategoryController : ControllerBase
     {
         private readonly ISubCategoryRepo _subCategoryRepo;
-        private readonly IFe_SubCat_RelRepo  _fe_SubCat_RelRepo;
+        private readonly IFe_SubCat_RelRepo _fe_SubCat_RelRepo;
         private readonly ILogger<SubCategoryController> _logger;
 
-        public SubCategoryController(ISubCategoryRepo productRepo,IFe_SubCat_RelRepo fe_SubCat_RelRepo, ILogger<SubCategoryController> logger)
+        public SubCategoryController(ISubCategoryRepo productRepo, IFe_SubCat_RelRepo fe_SubCat_RelRepo, ILogger<SubCategoryController> logger)
         {
             _subCategoryRepo = productRepo;
             _fe_SubCat_RelRepo = fe_SubCat_RelRepo;
@@ -43,7 +39,7 @@ namespace panelApi.Controllers
                 ModelState.AddModelError("", "SubCategory already exist");
                 return StatusCode(404, ModelState);
             }
-            
+
             var result = await _subCategoryRepo.Create(subCategory);
             if (result == null)
             {
@@ -81,7 +77,7 @@ namespace panelApi.Controllers
         [Route("getSubCategoryByCatId/{Id}")]
         public async Task<IActionResult> GetSubCategorybyCatId(int Id)
         {
-            var result = await _subCategoryRepo.GetList(a => a.CategoryId == Id);
+            var result = await _subCategoryRepo.GetListWithRelatedEntity(a => a.CategoryId == Id);
             if (result == null)
             {
                 _logger.LogError($"GetSubCategorybyCatId/Fail__{Id} Id'li AltKategoriler bulunamdı.");
@@ -123,7 +119,7 @@ namespace panelApi.Controllers
         [Route("getAllSubCategories")]
         public async Task<IActionResult> GetAllSubCategories()
         {
-            var result = await _subCategoryRepo.GetList();
+            var result = await _subCategoryRepo.GetListWithRelatedEntity();
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllProducts/Fail__AltKategoriler bulunamdı.", "");
@@ -141,8 +137,8 @@ namespace panelApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("updateSubCategory")]
         public async Task<IActionResult> UpdateSubCategory([FromBody] SubCategory subCategory)
-        {            
-            var result = await _subCategoryRepo.Update(subCategory);           
+        {
+            var result = await _subCategoryRepo.Update(subCategory);
             if (!result)
             {
                 _logger.LogError($"UpdateSubCategory/Fail__{subCategory.Name} isimli AltKategori güncellenirken hata meydana geldi.");

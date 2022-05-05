@@ -64,7 +64,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<List<Tag>> GetList(Expression<Func<Tag, bool>> filter = null)
+        public async Task<List<Tag>> GetListWithRelatedEntity(Expression<Func<Tag, bool>> filter = null)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"TagRepo GetList // {e.Message}");
+                _logger.LogError($"TagRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }

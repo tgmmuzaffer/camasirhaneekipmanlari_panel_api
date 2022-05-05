@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using panelApi.Models;
 using panelApi.Repository.IRepository;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using panelApi.Models;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace panelApi.Controllers
 {
@@ -20,7 +18,7 @@ namespace panelApi.Controllers
             _logRepo = logRepo;
         }
 
-        [Authorize(Roles ="Admin, Editor")]
+        [Authorize(Roles = "Admin, Editor")]
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(Log))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -39,7 +37,7 @@ namespace panelApi.Controllers
         public async Task<IActionResult> DeleteLogs()
         {
             var date = DateTime.Now;
-            var logs = await _logRepo.GetLogs(a=>a.TimeStamp < date);
+            var logs = await _logRepo.GetLogs(a => a.TimeStamp < date);
             await _logRepo.RemoveMultiple(logs);
             return NoContent();
         }

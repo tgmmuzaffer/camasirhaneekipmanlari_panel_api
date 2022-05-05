@@ -73,8 +73,8 @@ namespace panelApi.Repository
         {
             try
             {
-                var result = filter != null ? 
-                    await _panelApiDbcontext.BlogTags.Where(filter).AsNoTracking().FirstOrDefaultAsync() 
+                var result = filter != null ?
+                    await _panelApiDbcontext.BlogTags.Where(filter).AsNoTracking().FirstOrDefaultAsync()
                     : await _panelApiDbcontext.BlogTags.AsNoTracking().FirstOrDefaultAsync();
                 return result;
             }
@@ -101,7 +101,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<List<BlogTag>> GetList(Expression<Func<BlogTag, bool>> filter = null)
+        public async Task<List<BlogTag>> GetListWithRelatedEntity(Expression<Func<BlogTag, bool>> filter = null)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"BlogTagRepo GetList // {e.Message}");
+                _logger.LogError($"BlogTagRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using panelApi.DataAccess;
+using panelApi.Helpers;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
 using System;
@@ -14,11 +16,14 @@ namespace panelApi.Repository
     public class ProductRepo : IProductRepo
     {
         private readonly ILogger<ProductRepo> _logger;
+        private readonly IMemoryCache _memoryCache;
         private readonly PanelApiDbcontext _panelApiDbcontext;
-        public ProductRepo(PanelApiDbcontext panelApiDbcontext, ILogger<ProductRepo> logger)
+        public ProductRepo(PanelApiDbcontext panelApiDbcontext, ILogger<ProductRepo> logger, IMemoryCache memoryCache)
         {
             _logger = logger;
             _panelApiDbcontext = panelApiDbcontext;
+            _memoryCache = memoryCache;
+
         }
 
         public async Task<Product> Create(Product entity)
@@ -113,45 +118,80 @@ namespace panelApi.Repository
             }
         }
 
+        public async Task<List<Product>> GetListWithRelatedEntity(Expression<Func<Product, bool>> filter = null)
+        {
+            try
+            {
+                var result = filter != null ?
+                await _panelApiDbcontext.Products
+                .Include(a => a.Category).ThenInclude(b => b.SubCategories)
+                .Where(filter)
+                .OrderBy(a => a.Name)
+                .AsNoTracking()
+                .ToListAsync()
+                : await _panelApiDbcontext.Products
+                .Include(a => a.Category).ThenInclude(b => b.SubCategories)
+                .OrderBy(a => a.Name)
+                .ToListAsync();
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"ProductRepo GetListWithRelatedEntity // {e.Message}");
+                return null;
+            }
+
+        }
+
         public async Task<List<Product>> GetList(Expression<Func<Product, bool>> filter = null)
+        {
+            try
+            {
+                var result = filter != null ?
+                await _panelApiDbcontext.Products
+                .Where(filter)
+                .OrderBy(a => a.Name)
+                .AsNoTracking()
+                .ToListAsync()
+                : await _panelApiDbcontext.Products
+                .OrderBy(a => a.Name)
+                .ToListAsync();
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"ProductRepo GetList // {e.Message}");
+                return null;
+            }
+        }
+
+        public async Task<List<Product>> GetPagedList(Expression<Func<Product, bool>> filter = null)
         {
             try
             {
                 if (filter == null)
                 {
-                    //.Select(c => c.Features.Select(d => d.FeatureDescriptions))
-                    var result = await _panelApiDbcontext.Products.Include(a => a.Category).ThenInclude(b => b.SubCategories).ToListAsync();
-                    return result;
+                    var product = new List<Product>();
+                    product = await _panelApiDbcontext.Products
+                      .OrderBy(on => on.Name)
+                      .AsNoTracking()
+                      .ToListAsync();
+                    return product;
                 }
                 else
                 {
-                    //.Select(c => c.Features.Select(d => d.FeatureDescriptions))
-                    var result = await _panelApiDbcontext.Products.Include(a => a.Category).ThenInclude(b => b.SubCategories).Where(filter).ToListAsync();
-                    return result;
+                    var product = new List<Product>();
+                    product = await _panelApiDbcontext.Products
+                    .Where(filter)
+                    .OrderBy(on => on.Name)
+                    .AsNoTracking()
+                    .ToListAsync();
+                    return product;
                 }
-
-
-
-
-
-
-
-
-                //var result = filter != null ?
-                //    await _panelApiDbcontext.Products
-                //    .Include(a => a.Category).ThenInclude(b => b.SubCategories)
-                //    .Where(filter)
-                //    .OrderBy(a => a.Name)
-                //    .ToListAsync()
-                //    : await _panelApiDbcontext.Products
-                //    .Include(a => a.Category).ThenInclude(b => b.SubCategories)
-                //    .OrderBy(a => a.Name)
-                //    .ToListAsync();
-                //return result;
             }
             catch (Exception e)
             {
-                _logger.LogError($"ProductRepo GetList // {e.Message}");
+                _logger.LogError($"ProductRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
 
@@ -177,7 +217,7 @@ namespace panelApi.Repository
             using var transaction = _panelApiDbcontext.Database.BeginTransaction();
             try
             {
-                if(entity.Pr_Fe_Relationals != null && entity.Pr_FeDesc_Relationals != null)
+                if (entity.Pr_Fe_Relationals != null && entity.Pr_FeDesc_Relationals != null)
                 {
                     _panelApiDbcontext.Pr_Fe_Relationals.RemoveRange(entity.Pr_Fe_Relationals);
                     await _panelApiDbcontext.SaveChangesAsync();

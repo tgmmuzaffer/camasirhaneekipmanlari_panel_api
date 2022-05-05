@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace panelApi.Models
 {
-    public class Feature  : IEntity
+    public class Feature : IEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }

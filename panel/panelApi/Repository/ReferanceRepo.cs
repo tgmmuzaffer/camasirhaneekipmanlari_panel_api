@@ -64,7 +64,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<List<Referance>> GetList(Expression<Func<Referance, bool>> filter = null)
+        public async Task<List<Referance>> GetListWithRelatedEntity(Expression<Func<Referance, bool>> filter = null)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"ReferanceRepo GetList // {e.Message}");
+                _logger.LogError($"ReferanceRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }

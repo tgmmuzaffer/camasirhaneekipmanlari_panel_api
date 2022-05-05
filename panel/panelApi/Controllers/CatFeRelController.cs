@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -69,7 +67,7 @@ namespace panelApi.Controllers
         [Route("getAllFeCats")]
         public async Task<IActionResult> GetAllFeCats()
         {
-            var result = await _cat_Fe_RelRepo.GetList();
+            var result = await _cat_Fe_RelRepo.GetListWithRelatedEntity();
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllFeCats/Fail__FeCat bulunamdı.", "");
@@ -87,7 +85,7 @@ namespace panelApi.Controllers
         [Route("getAllFeCatsByCatId/{Id}")]
         public async Task<IActionResult> GetAllFeCatsByCatId(int Id)
         {
-            var result = await _cat_Fe_RelRepo.GetList(a=>a.CategoryId==Id);
+            var result = await _cat_Fe_RelRepo.GetListWithRelatedEntity(a => a.CategoryId == Id);
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllFeCatsByCatId/Fail__FeCat bulunamdı.", "");
@@ -136,7 +134,7 @@ namespace panelApi.Controllers
         [Route("deleteFeCatByCatId/{Id}")]
         public async Task<IActionResult> DeleteFeCatByCatId(int Id)
         {
-            var feature = await _cat_Fe_RelRepo.GetList(a => a.CategoryId == Id);
+            var feature = await _cat_Fe_RelRepo.GetListWithRelatedEntity(a => a.CategoryId == Id);
             if (feature == null)
             {
                 _logger.LogError($"DeleteFeCatByCatId__{Id } Kategori Id'li FeCat bulunamdı.");

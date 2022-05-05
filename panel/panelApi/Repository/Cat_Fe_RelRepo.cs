@@ -68,7 +68,7 @@ namespace panelApi.Repository
 
 
 
-        public async Task<List<Cat_Fe_Relational>> GetList(Expression<Func<Cat_Fe_Relational, bool>> filter = null)
+        public async Task<List<Cat_Fe_Relational>> GetListWithRelatedEntity(Expression<Func<Cat_Fe_Relational, bool>> filter = null)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"Cat_Fe_Relatianals GetList // {e.Message}");
+                _logger.LogError($"Cat_Fe_Relatianals GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }
@@ -165,7 +165,7 @@ namespace panelApi.Repository
                     _panelApiDbcontext.RemoveRange(cat_fe_list);
                     await _panelApiDbcontext.SaveChangesAsync();
 
-                     _panelApiDbcontext.AddRange(entity);
+                    _panelApiDbcontext.AddRange(entity);
                     await _panelApiDbcontext.SaveChangesAsync();
                 }
 

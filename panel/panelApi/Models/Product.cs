@@ -4,14 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace panelApi.Models
 {
-    public class Product :IEntity
+    public class Product : IEntity
     {
         public int Id { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; }
         [NotMapped]
-        public SubCategory SubCategory{ get; set; }
-        public int SubCategoryId { get; set; }      
+        public SubCategory SubCategory { get; set; }
+        public int SubCategoryId { get; set; }
         public string Name { get; set; }
         public string ShortDesc { get; set; }
         public string Description { get; set; }
@@ -28,7 +28,7 @@ namespace panelApi.Models
         public List<Pr_Fe_Relational> Pr_Fe_Relationals { get; set; } = new List<Pr_Fe_Relational>();
         [NotMapped]
         public List<Pr_FeDesc_Relational> Pr_FeDesc_Relationals { get; set; } = new List<Pr_FeDesc_Relational>();
-        
+
     }
 
     public class ProductList

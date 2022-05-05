@@ -79,7 +79,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<List<Pr_Fe_Relational>> GetList(Expression<Func<Pr_Fe_Relational, bool>> filter = null)
+        public async Task<List<Pr_Fe_Relational>> GetListWithRelatedEntity(Expression<Func<Pr_Fe_Relational, bool>> filter = null)
         {
             try
             {
@@ -90,11 +90,11 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"Pr_Fe_Relational GetList // {e.Message}");
+                _logger.LogError($"Pr_Fe_Relational GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }
-         public async Task<List<int>> GetFetureIdList(Expression<Func<Pr_Fe_Relational, bool>> filter = null)
+        public async Task<List<int>> GetFetureIdList(Expression<Func<Pr_Fe_Relational, bool>> filter = null)
         {
             try
             {
@@ -102,11 +102,22 @@ namespace panelApi.Repository
                     ? await _panelApiDbcontext.Pr_Fe_Relationals
                     .Where(filter)
                     .AsNoTracking()
-                    .Select(a=>a.FeatureId).ToListAsync()
+                    .Select(a => a.FeatureId).ToListAsync()
                     : await _panelApiDbcontext.Pr_Fe_Relationals
                     .AsNoTracking()
                     .Select(a => a.FeatureId)
                     .ToListAsync();
+
+
+                //var result = filter != null
+                //    ? await _panelApiDbcontext.Pr_Fe_Relationals
+                //    .Where(filter)
+                //    .AsNoTracking()
+                //    .Select(a => a.FeatureId).ToListAsync()
+                //    : await _panelApiDbcontext.Pr_Fe_Relationals
+                //    .AsNoTracking()
+                //    .Select(a => a.FeatureId)
+                //    .ToListAsync();
                 return result;
             }
             catch (Exception e)

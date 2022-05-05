@@ -44,13 +44,13 @@ namespace panelApi.Repository
             try
             {
                 var prFeDescs = await _panelApiDbcontext.Pr_FeDesc_Relationals.AsNoTracking().Where(a => a.FeatureDescriptionId == entity.Id).ToListAsync();
-                if(prFeDescs!=null && prFeDescs.Count < 0)
+                if (prFeDescs != null && prFeDescs.Count < 0)
                 {
                     _panelApiDbcontext.Pr_FeDesc_Relationals.RemoveRange(prFeDescs);
                     await _panelApiDbcontext.SaveChangesAsync();
                 }
                 _panelApiDbcontext.FeatureDescriptions.Remove(entity);
-                _panelApiDbcontext.Entry(entity.Feature).State= EntityState.Unchanged;
+                _panelApiDbcontext.Entry(entity.Feature).State = EntityState.Unchanged;
 
                 await _panelApiDbcontext.SaveChangesAsync();
 
@@ -94,7 +94,7 @@ namespace panelApi.Repository
 
         }
 
-        public async Task<List<FeatureDescription>> GetList(Expression<Func<FeatureDescription, bool>> filter = null)
+        public async Task<List<FeatureDescription>> GetListWithRelatedEntity(Expression<Func<FeatureDescription, bool>> filter = null)
         {
             try
             {
@@ -103,7 +103,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"FeatureDescriptionRepo GetList // {e.Message}");
+                _logger.LogError($"FeatureDescriptionRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
 

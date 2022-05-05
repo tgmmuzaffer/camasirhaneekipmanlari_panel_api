@@ -2,7 +2,7 @@
 
 namespace panelApi.Repository.IRepository
 {
-    public interface ITagRepo: IBaseRepo<Tag>
+    public interface ITagRepo : IBaseRepo<Tag>
     {
     }
 }

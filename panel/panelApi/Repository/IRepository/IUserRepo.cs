@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace panelApi.Repository.IRepository
 {
-    public interface IUserRepo 
+    public interface IUserRepo
     {
         Task<bool> IsUnique(string mail);
         Task<UserDto> Authenticate(string mail, string password);

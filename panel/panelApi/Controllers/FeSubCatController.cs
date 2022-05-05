@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +19,7 @@ namespace panelApi.Controllers
         private readonly ICat_Fe_RelRepo _cat_Fe_RelRepo;
         private readonly ILogger<FeSubCatController> _logger;
 
-        public FeSubCatController(IFe_SubCat_RelRepo pr_FeDesc_RelRepo, ISubCategoryRepo subCategoryRepo,ICat_Fe_RelRepo cat_Fe_RelRepo, ILogger<FeSubCatController> logger)
+        public FeSubCatController(IFe_SubCat_RelRepo pr_FeDesc_RelRepo, ISubCategoryRepo subCategoryRepo, ICat_Fe_RelRepo cat_Fe_RelRepo, ILogger<FeSubCatController> logger)
         {
             _fe_SubCat_RelRepo = pr_FeDesc_RelRepo;
             _logger = logger;
@@ -39,7 +38,7 @@ namespace panelApi.Controllers
             int subcatId = feature.Select(a => a.SubCategoryId).FirstOrDefault();
             List<int> willAddfeatureIds = new();
             List<Cat_Fe_Relational> cat_Fe_Relationals = new();
-             var result = await _fe_SubCat_RelRepo.UpdateCreate(feature);
+            var result = await _fe_SubCat_RelRepo.UpdateCreate(feature);
             if (!result)
             {
                 _logger.LogError($"CreateFeSubCat/Fail__{feature[0].SubCategoryId} Subcat id'li FeSubCat oluşturulurken hata meydana geldi.");
@@ -113,7 +112,7 @@ namespace panelApi.Controllers
         [Route("getAllFeSubCats")]
         public async Task<IActionResult> GetAllFeSubCats()
         {
-            var result = await _fe_SubCat_RelRepo.GetList();
+            var result = await _fe_SubCat_RelRepo.GetListWithRelatedEntity();
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllFeSubCats/Fail__FeSubCat bulunamdı.", "");
@@ -180,7 +179,7 @@ namespace panelApi.Controllers
         [Route("deleteFeSubCatBysubCatId/{Id}")]
         public async Task<IActionResult> DeleteFeSubCatBysubCatId(int Id)
         {
-            var feature = await _fe_SubCat_RelRepo.GetList(a => a.SubCategoryId == Id);
+            var feature = await _fe_SubCat_RelRepo.GetListWithRelatedEntity(a => a.SubCategoryId == Id);
             if (feature == null)
             {
                 _logger.LogError($"DeleteFeSubCatBysubCatId__{Id} AltKategori Id'li FeSubCat bulunamdı.");
@@ -199,6 +198,6 @@ namespace panelApi.Controllers
             _logger.LogWarning($"DeleteFeSubCatBysubCatId/Success__{Id} AltKategori id'li FeSubCat silindi.");
             return NoContent();
         }
-        
+
     }
 }

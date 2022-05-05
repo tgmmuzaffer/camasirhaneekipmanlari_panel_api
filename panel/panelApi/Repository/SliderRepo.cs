@@ -64,7 +64,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<List<Slider>> GetList(Expression<Func<Slider, bool>> filter = null)
+        public async Task<List<Slider>> GetListWithRelatedEntity(Expression<Func<Slider, bool>> filter = null)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"SliderRepo GetList // {e.Message}");
+                _logger.LogError($"SliderRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }

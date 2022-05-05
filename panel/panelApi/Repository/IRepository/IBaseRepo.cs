@@ -7,7 +7,7 @@ namespace panelApi.Repository.IRepository
 {
     public interface IBaseRepo<T> where T : class, new()
     {
-        Task<List<T>> GetList(Expression<Func<T, bool>> filter = null);
+        Task<List<T>> GetListWithRelatedEntity(Expression<Func<T, bool>> filter = null);
         Task<T> Get(Expression<Func<T, bool>> filter = null);
         Task<T> Create(T entity);
         Task<bool> Update(T entity);

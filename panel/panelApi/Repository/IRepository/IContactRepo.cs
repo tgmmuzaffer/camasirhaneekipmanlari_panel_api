@@ -2,7 +2,7 @@
 
 namespace panelApi.Repository.IRepository
 {
-    public interface IContactRepo: IBaseRepo<Contact>
+    public interface IContactRepo : IBaseRepo<Contact>
     {
     }
 }

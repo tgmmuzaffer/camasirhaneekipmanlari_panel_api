@@ -52,7 +52,7 @@ namespace panelApi.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            var featureList = await _featureRepo.GetList();
+            var featureList = await _featureRepo.GetListWithRelatedEntity();
             _logger.LogWarning($"CreateFeature/Success__{feature.Name} isimli Özellik oluşturuldu.");
             return Ok(featureList);
         }
@@ -133,7 +133,7 @@ namespace panelApi.Controllers
             var ur = HttpContext.Request.GetDisplayUrl();
             if (ur.Contains("panel"))
             {
-                features = await _featureRepo.GetList();
+                features = await _featureRepo.GetListWithRelatedEntity();
                 if (features == null)
                 {
                     _logger.LogError("GetAllFeatures/Fail__Özellikler bulunamdı.", "");
@@ -148,7 +148,7 @@ namespace panelApi.Controllers
             }
             else
             {
-                features = await _featureRepo.GetList();
+                features = await _featureRepo.GetListWithRelatedEntity();
                 if (features == null)
                 {
                     _logger.LogError("GetAllFeatures/Fail__Özellikler bulunamdı.", "");
@@ -176,7 +176,7 @@ namespace panelApi.Controllers
         [Route("getFeaturesBySubCatId/{Id}")]
         public async Task<IActionResult> GetAllFeaturesBySubCatId(int Id)
         {
-            var result = await _featureRepo.GetList(a => a.SubCategories.All(b => b.Id == Id));
+            var result = await _featureRepo.GetListWithRelatedEntity(a => a.SubCategories.All(b => b.Id == Id));
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllFeatures/Fail__Özellikler bulunamdı.", "");
@@ -203,7 +203,7 @@ namespace panelApi.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            var featureList = await _featureRepo.GetList();
+            var featureList = await _featureRepo.GetListWithRelatedEntity();
             if (featureList == null)
             {
                 _logger.LogError("UpdateFeature/Fail__Özellikler bulunamdı.", "");

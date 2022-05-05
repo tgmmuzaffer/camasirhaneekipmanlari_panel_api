@@ -163,7 +163,7 @@ namespace panelApi.Repository
             }
         }
 
-        public async Task<List<Fe_SubCat_Relational>> GetList(Expression<Func<Fe_SubCat_Relational, bool>> filter = null)
+        public async Task<List<Fe_SubCat_Relational>> GetListWithRelatedEntity(Expression<Func<Fe_SubCat_Relational, bool>> filter = null)
         {
             try
             {
@@ -178,7 +178,7 @@ namespace panelApi.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError($"Fe_SubCat_RelRepo GetList // {e.Message}");
+                _logger.LogError($"Fe_SubCat_RelRepo GetListWithRelatedEntity // {e.Message}");
                 return null;
             }
         }

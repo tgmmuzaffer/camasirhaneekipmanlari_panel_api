@@ -128,7 +128,7 @@ namespace panelApi.Controllers
                 return StatusCode(404, ModelState);
             }
 
-            var tagList = await _tagRepo.GetList(a => blogTagResult.Contains(a.Id));
+            var tagList = await _tagRepo.GetListWithRelatedEntity(a => blogTagResult.Contains(a.Id));
             if (blogTagResult == null)
             {
                 _logger.LogWarning($"GetBlog__{result.Title} başlıklı {Id} id'li blog a ait taglar bulunamadı.");
@@ -153,7 +153,7 @@ namespace panelApi.Controllers
             var ur = HttpContext.Request.GetDisplayUrl();
             if (ur.Contains("panel"))
             {
-                var result = await _blogRepo.GetList();
+                var result = await _blogRepo.GetListWithRelatedEntity();
                 if (result.Count < 0)
                 {
                     _logger.LogWarning("GetAllBlogs__Bloglar bulunamadı.");
@@ -180,7 +180,7 @@ namespace panelApi.Controllers
                         return StatusCode(404, ModelState);
                     }
 
-                    var tagList = await _tagRepo.GetList(a => blogTagResult.Contains(a.Id));
+                    var tagList = await _tagRepo.GetListWithRelatedEntity(a => blogTagResult.Contains(a.Id));
                     blogDto.TagIds = tagList.Select(a => a.Id).ToList();
                     blogDto.TagNames = tagList.Select(a => a.Name).ToList();
                     blogDtos.Add(blogDto);
@@ -194,7 +194,7 @@ namespace panelApi.Controllers
             else
             {
                 var _blogDtos = new List<BlogDto>();
-                var result = await _blogRepo.GetList();
+                var result = await _blogRepo.GetListWithRelatedEntity();
                 if (result.Count < 0)
                 {
                     _logger.LogWarning("GetAllBlogs__Bloglar bulunamadı.");
@@ -221,7 +221,7 @@ namespace panelApi.Controllers
                         return StatusCode(404, ModelState);
                     }
 
-                    var tagList = await _tagRepo.GetList(a => blogTagResult.Contains(a.Id));
+                    var tagList = await _tagRepo.GetListWithRelatedEntity(a => blogTagResult.Contains(a.Id));
                     blogDto.TagIds = tagList.Select(a => a.Id).ToList();
                     blogDto.TagNames = tagList.Select(a => a.Name).ToList();
                     _blogDtos.Add(blogDto);

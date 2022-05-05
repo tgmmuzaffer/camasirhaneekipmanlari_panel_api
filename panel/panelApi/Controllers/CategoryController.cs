@@ -131,7 +131,7 @@ namespace panelApi.Controllers
         [Route("getAllCategories")]
         public async Task<IActionResult> GetAllCategories()
         {
-            var result = await _categoryRepo.GetList();
+            var result = await _categoryRepo.GetListWithRelatedEntity();
             if (result == null)
             {
                 _logger.LogError("GetAllCategories/Fail__Kategoriler bulunamdı.");

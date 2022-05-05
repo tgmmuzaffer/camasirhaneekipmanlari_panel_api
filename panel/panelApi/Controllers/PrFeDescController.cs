@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using panelApi.Models;
 using panelApi.Repository.IRepository;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -36,7 +34,7 @@ namespace panelApi.Controllers
         [Route("createMultiplePrFedesc")]
         public async Task<IActionResult> CreateMultiplePrFedesc([FromBody] List<Pr_FeDesc_Relational> feature)
         {
-          
+
             var result = await _pr_FeDesc_RelRepo.CreateMultiple(feature);
             if (!result)
             {
@@ -74,7 +72,7 @@ namespace panelApi.Controllers
         [Route("getAllPrFedescs")]
         public async Task<IActionResult> GetAllPrFedescs()
         {
-            var result = await _pr_FeDesc_RelRepo.GetList();
+            var result = await _pr_FeDesc_RelRepo.GetListWithRelatedEntity();
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllFeFedescs/Fail__Pr_FeDesc bulunamdı.", "");
@@ -84,7 +82,7 @@ namespace panelApi.Controllers
 
             return Ok(result);
         }
-       
+
         [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

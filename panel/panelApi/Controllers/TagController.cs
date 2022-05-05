@@ -74,7 +74,7 @@ namespace panelApi.Controllers
         [Route("getAllTags")]
         public async Task<IActionResult> GetAllTags()
         {
-            var result = await _tagRepo.GetList();
+            var result = await _tagRepo.GetListWithRelatedEntity();
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllTag/Fail__Taglar bulunamdı.");

@@ -10,7 +10,7 @@ namespace panelApi.Models.Dtos
         public string ShortDesc { get; set; }
         public string Description { get; set; }
         public string ImagePath { get; set; }
-        public string  ImageName { get; set; }
+        public string ImageName { get; set; }
         public bool IsPublish { get; set; }
         public DateTime CreateDate { get; set; }
     }

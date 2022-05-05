@@ -8,7 +8,6 @@ using panelApi.Models;
 using panelApi.Repository.IRepository;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace panelApi.Controllers
@@ -81,7 +80,7 @@ namespace panelApi.Controllers
         [Route("getAllfeatureDescriptions")]
         public async Task<IActionResult> GetAllFeatureDescriptions()
         {
-            var result = await _featureDescriptionRepo.GetList();
+            var result = await _featureDescriptionRepo.GetListWithRelatedEntity();
             if (result.Count < 0)
             {
                 _logger.LogError("GetAllFeatureDescriptions/Fail__ÖzellikAçıklamaları bulunamdı.", "");
@@ -99,12 +98,12 @@ namespace panelApi.Controllers
         [Route("getAllfeatureDescriptionsByFeatureId/{Id}")]
         public async Task<IActionResult> GetAllFeatureDescriptionsByFeatureId(int Id)
         {
-            string key = "getAllfeatureDescriptionsByFeatureId"+ Id.ToString();
+            string key = "getAllfeatureDescriptionsByFeatureId" + Id.ToString();
             var featuredescription = new List<FeatureDescription>();
             var ur = HttpContext.Request.GetDisplayUrl();
             if (ur.Contains("panel"))
             {
-                featuredescription = await _featureDescriptionRepo.GetList(a => a.FeatureId == Id);
+                featuredescription = await _featureDescriptionRepo.GetListWithRelatedEntity(a => a.FeatureId == Id);
                 if (featuredescription.Count < 0)
                 {
                     _logger.LogError("GetAllFeatureDescriptionsByFeatureId/Fail__ÖzellikAçıklamaları bulunamdı.", "");
@@ -119,7 +118,7 @@ namespace panelApi.Controllers
             }
             else
             {
-                featuredescription = await _featureDescriptionRepo.GetList(a => a.FeatureId == Id);
+                featuredescription = await _featureDescriptionRepo.GetListWithRelatedEntity(a => a.FeatureId == Id);
                 if (featuredescription.Count < 0)
                 {
                     _logger.LogError("GetAllFeatureDescriptionsByFeatureId/Fail__ÖzellikAçıklamaları bulunamdı.", "");
@@ -137,7 +136,7 @@ namespace panelApi.Controllers
             }
 
 
-                return Ok(featuredescription);
+            return Ok(featuredescription);
         }
 
         [Authorize]
