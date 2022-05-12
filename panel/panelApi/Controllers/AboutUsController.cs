@@ -89,11 +89,11 @@ namespace panelApi.Controllers
         [Route("getAboutUs")]
         public async Task<IActionResult> GetAboutUs()
         {
-            string key = "gaus";
+            //string key = "gaus";
             var aboutus = new AboutUs();
-            var ur = HttpContext.Request.GetDisplayUrl();
-            if (ur.Contains("panel"))
-            {
+            //var ur = HttpContext.Request.GetDisplayUrl();
+            //if (ur.Contains("panel"))
+            //{
                 aboutus = await _aboutusrepo.Get();
                 if (aboutus == null)
                 {
@@ -101,30 +101,30 @@ namespace panelApi.Controllers
                     ModelState.AddModelError("", "AboutUs not found");
                     return StatusCode(404, ModelState);
                 }
-            }
-            else if (_memoryCache.TryGetValue(key, out aboutus))
-            {
-                return Ok(aboutus);
+            //}
+            //else if (_memoryCache.TryGetValue(key, out aboutus))
+            //{
+            //    return Ok(aboutus);
 
-            }
-            else
-            {
-                aboutus = await _aboutusrepo.Get();
-                if (aboutus == null)
-                {
-                    _logger.LogError($"GetAboutUs/Fail__ Hakkımızda bulunamdı.");
-                    ModelState.AddModelError("", "AboutUs not found");
-                    return StatusCode(404, ModelState);
-                }
+            //}
+            //else
+            //{
+            //    aboutus = await _aboutusrepo.Get();
+            //    if (aboutus == null)
+            //    {
+            //        _logger.LogError($"GetAboutUs/Fail__ Hakkımızda bulunamdı.");
+            //        ModelState.AddModelError("", "AboutUs not found");
+            //        return StatusCode(404, ModelState);
+            //    }
 
-                var cacheExpiryOptions = new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpiration = DateTime.Now.AddHours(1),
-                    Priority = CacheItemPriority.High,
-                    SlidingExpiration = TimeSpan.FromMinutes(10)
-                };
-                _memoryCache.Set(key, aboutus, cacheExpiryOptions);
-            }
+            //    var cacheExpiryOptions = new MemoryCacheEntryOptions
+            //    {
+            //        AbsoluteExpiration = DateTime.Now.AddHours(1),
+            //        Priority = CacheItemPriority.High,
+            //        SlidingExpiration = TimeSpan.FromMinutes(10)
+            //    };
+            //    _memoryCache.Set(key, aboutus, cacheExpiryOptions);
+            //}
 
             return Ok(aboutus);
         }

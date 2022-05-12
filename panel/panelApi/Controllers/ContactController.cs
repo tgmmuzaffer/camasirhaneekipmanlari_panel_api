@@ -62,11 +62,11 @@ namespace panelApi.Controllers
         [Route("getContact")]
         public async Task<IActionResult> GetContact()
         {
-            string key = "gc";
+            //string key = "gc";
             var contact = new Contact();
-            var ur = HttpContext.Request.GetDisplayUrl();
-            if (ur.Contains("panel"))
-            {
+            //var ur = HttpContext.Request.GetDisplayUrl();
+            //if (ur.Contains("panel"))
+            //{
                 contact = await _contactRepo.Get();
                 if (contact == null)
                 {
@@ -75,30 +75,30 @@ namespace panelApi.Controllers
                     return StatusCode(404, ModelState);
                 }
 
-            }
-            else if (_memoryCache.TryGetValue(key, out contact))
-            {
-                return Ok(contact);
+            //}
+            //else if (_memoryCache.TryGetValue(key, out contact))
+            //{
+            //    return Ok(contact);
 
-            }
-            else
-            {
-                contact = await _contactRepo.Get();
-                if (contact == null)
-                {
-                    _logger.LogError($"GetContact/Fail__ Id'li İletişim Bilgisi bulunamdı.");
-                    ModelState.AddModelError("", "Contact not found");
-                    return StatusCode(404, ModelState);
-                }
+            //}
+            //else
+            //{
+            //    contact = await _contactRepo.Get();
+            //    if (contact == null)
+            //    {
+            //        _logger.LogError($"GetContact/Fail__ Id'li İletişim Bilgisi bulunamdı.");
+            //        ModelState.AddModelError("", "Contact not found");
+            //        return StatusCode(404, ModelState);
+            //    }
 
-                var cacheExpiryOptions = new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpiration = DateTime.Now.AddHours(1),
-                    Priority = CacheItemPriority.High,
-                    SlidingExpiration = TimeSpan.FromMinutes(10)
-                };
-                _memoryCache.Set(key, contact, cacheExpiryOptions);
-            }
+            //    var cacheExpiryOptions = new MemoryCacheEntryOptions
+            //    {
+            //        AbsoluteExpiration = DateTime.Now.AddHours(1),
+            //        Priority = CacheItemPriority.High,
+            //        SlidingExpiration = TimeSpan.FromMinutes(10)
+            //    };
+            //    _memoryCache.Set(key, contact, cacheExpiryOptions);
+            //}
 
             return Ok(contact);
         }

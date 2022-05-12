@@ -148,12 +148,12 @@ namespace panelApi.Controllers
         [Route("getAllBlogs")]
         public async Task<IActionResult> GetAllBlogs()
         {
-            string key = "gab";
+            //string key = "gab";
             var blogDtos = new List<BlogDto>();
-            var ur = HttpContext.Request.GetDisplayUrl();
-            if (ur.Contains("panel"))
-            {
-                var result = await _blogRepo.GetListWithRelatedEntity();
+            //var ur = HttpContext.Request.GetDisplayUrl();
+            //if (ur.Contains("panel"))
+            //{
+            var result = await _blogRepo.GetListWithRelatedEntity();
                 if (result.Count < 0)
                 {
                     _logger.LogWarning("GetAllBlogs__Bloglar bulunamadı.");
@@ -185,56 +185,56 @@ namespace panelApi.Controllers
                     blogDto.TagNames = tagList.Select(a => a.Name).ToList();
                     blogDtos.Add(blogDto);
                 }
-            }
-            else if (_memoryCache.TryGetValue(key, out blogDtos))
-            {
-                return Ok(blogDtos);
+            //}
+            //else if (_memoryCache.TryGetValue(key, out blogDtos))
+            //{
+            //    return Ok(blogDtos);
 
-            }
-            else
-            {
-                var _blogDtos = new List<BlogDto>();
-                var result = await _blogRepo.GetListWithRelatedEntity();
-                if (result.Count < 0)
-                {
-                    _logger.LogWarning("GetAllBlogs__Bloglar bulunamadı.");
-                    ModelState.AddModelError("", "Blogs not found");
-                    return StatusCode(404, ModelState);
-                }
+            //}
+            //else
+            //{
+            //    var _blogDtos = new List<BlogDto>();
+            //    var result = await _blogRepo.GetListWithRelatedEntity();
+            //    if (result.Count < 0)
+            //    {
+            //        _logger.LogWarning("GetAllBlogs__Bloglar bulunamadı.");
+            //        ModelState.AddModelError("", "Blogs not found");
+            //        return StatusCode(404, ModelState);
+            //    }
 
-                foreach (var item in result)
-                {
-                    var blogDto = new BlogDto();
-                    blogDto.Content = item.Content;
-                    blogDto.CreateDate = item.CreateDate;
-                    blogDto.Id = item.Id;
-                    blogDto.ImagePath = item.ImagePath;
-                    blogDto.ShortDesc = item.ShortDesc;
-                    blogDto.TagIds = null;
-                    blogDto.TagNames = null;
-                    blogDto.Title = item.Title;
-                    var blogTagResult = await _blogTagRepo.GetIdList(a => a.BlogId == item.Id);
-                    if (blogTagResult == null)
-                    {
-                        _logger.LogWarning("GetAllBlogs__Bloglara ait taglar bulunamadı.");
-                        ModelState.AddModelError("", "BlogTag not found");
-                        return StatusCode(404, ModelState);
-                    }
+            //    foreach (var item in result)
+            //    {
+            //        var blogDto = new BlogDto();
+            //        blogDto.Content = item.Content;
+            //        blogDto.CreateDate = item.CreateDate;
+            //        blogDto.Id = item.Id;
+            //        blogDto.ImagePath = item.ImagePath;
+            //        blogDto.ShortDesc = item.ShortDesc;
+            //        blogDto.TagIds = null;
+            //        blogDto.TagNames = null;
+            //        blogDto.Title = item.Title;
+            //        var blogTagResult = await _blogTagRepo.GetIdList(a => a.BlogId == item.Id);
+            //        if (blogTagResult == null)
+            //        {
+            //            _logger.LogWarning("GetAllBlogs__Bloglara ait taglar bulunamadı.");
+            //            ModelState.AddModelError("", "BlogTag not found");
+            //            return StatusCode(404, ModelState);
+            //        }
 
-                    var tagList = await _tagRepo.GetListWithRelatedEntity(a => blogTagResult.Contains(a.Id));
-                    blogDto.TagIds = tagList.Select(a => a.Id).ToList();
-                    blogDto.TagNames = tagList.Select(a => a.Name).ToList();
-                    _blogDtos.Add(blogDto);
-                }
-                var cacheExpiryOptions = new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpiration = DateTime.Now.AddHours(1),
-                    Priority = CacheItemPriority.High,
-                    SlidingExpiration = TimeSpan.FromMinutes(10)
-                };
-                _memoryCache.Set(key, _blogDtos, cacheExpiryOptions);
-                blogDtos = _blogDtos;
-            }
+            //        var tagList = await _tagRepo.GetListWithRelatedEntity(a => blogTagResult.Contains(a.Id));
+            //        blogDto.TagIds = tagList.Select(a => a.Id).ToList();
+            //        blogDto.TagNames = tagList.Select(a => a.Name).ToList();
+            //        _blogDtos.Add(blogDto);
+            //    }
+            //    var cacheExpiryOptions = new MemoryCacheEntryOptions
+            //    {
+            //        AbsoluteExpiration = DateTime.Now.AddHours(1),
+            //        Priority = CacheItemPriority.High,
+            //        SlidingExpiration = TimeSpan.FromMinutes(10)
+            //    };
+            //    _memoryCache.Set(key, _blogDtos, cacheExpiryOptions);
+            //    blogDtos = _blogDtos;
+            //}
 
             return Ok(blogDtos);
         }

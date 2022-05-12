@@ -38,6 +38,8 @@ namespace panelApi.RepoExtension
             services.AddScoped<IAboutUsRepo, AboutUsRepo>();
             services.AddScoped<ICat_Fe_RelRepo, Cat_Fe_RelRepo>();
             services.AddScoped<ICat_FeDesc_RelRepo, Cat_FeDesc_RelRepo>();
+            services.AddScoped<IIndustryRepo, IndustryRepo>();
+            services.AddScoped<IFaqRepo, FaqRepo>();
 
 
         }

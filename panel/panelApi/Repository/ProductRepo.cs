@@ -103,11 +103,11 @@ namespace panelApi.Repository
                     await _panelApiDbcontext.Products
                     .Include(a => a.Category).ThenInclude(b => b.SubCategories)
                     .Where(filter)
-                    .OrderBy(a => a.Name)
+                    .OrderBy(a => a.CreateDate)
                     .FirstOrDefaultAsync()
                     : await _panelApiDbcontext.Products
                     .Include(a => a.Category).ThenInclude(b => b.SubCategories)
-                    .OrderBy(a => a.Name)
+                    .OrderBy(a => a.CreateDate)
                     .FirstOrDefaultAsync();
                 return result;
             }
@@ -126,12 +126,12 @@ namespace panelApi.Repository
                 await _panelApiDbcontext.Products
                 .Include(a => a.Category).ThenInclude(b => b.SubCategories)
                 .Where(filter)
-                .OrderBy(a => a.Name)
+                .OrderBy(a => a.CreateDate)
                 .AsNoTracking()
                 .ToListAsync()
                 : await _panelApiDbcontext.Products
                 .Include(a => a.Category).ThenInclude(b => b.SubCategories)
-                .OrderBy(a => a.Name)
+                .OrderBy(a => a.CreateDate)
                 .ToListAsync();
                 return result;
             }
@@ -150,11 +150,11 @@ namespace panelApi.Repository
                 var result = filter != null ?
                 await _panelApiDbcontext.Products
                 .Where(filter)
-                .OrderBy(a => a.Name)
+                .OrderBy(a => a.CreateDate)
                 .AsNoTracking()
                 .ToListAsync()
                 : await _panelApiDbcontext.Products
-                .OrderBy(a => a.Name)
+                .OrderBy(a => a.CreateDate)
                 .ToListAsync();
                 return result;
             }
@@ -173,7 +173,7 @@ namespace panelApi.Repository
                 {
                     var product = new List<Product>();
                     product = await _panelApiDbcontext.Products
-                      .OrderBy(on => on.Name)
+                      .OrderBy(on => on.CreateDate)
                       .AsNoTracking()
                       .ToListAsync();
                     return product;
@@ -183,7 +183,7 @@ namespace panelApi.Repository
                     var product = new List<Product>();
                     product = await _panelApiDbcontext.Products
                     .Where(filter)
-                    .OrderBy(on => on.Name)
+                    .OrderBy(on => on.CreateDate)
                     .AsNoTracking()
                     .ToListAsync();
                     return product;

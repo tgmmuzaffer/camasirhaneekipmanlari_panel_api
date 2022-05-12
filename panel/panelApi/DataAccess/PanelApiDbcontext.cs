@@ -28,5 +28,7 @@ namespace panelApi.DataAccess
         public virtual DbSet<AboutUs> AboutUs { get; set; }
         public virtual DbSet<Cat_FeDesc_Realational> Cat_FeDesc_Realationals { get; set; }
         public virtual DbSet<Cat_Fe_Relational> Cat_Fe_Relatianals { get; set; }
+        public virtual DbSet<Industry> Industries{ get; set; }
+        public virtual DbSet<Faq> Faqs{ get; set; }
     }
 }

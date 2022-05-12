@@ -49,7 +49,7 @@ namespace panelApi.Controllers
 
             if (!string.IsNullOrEmpty(referanceDto.ImageData))
             {
-                string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + referanceDto.Name + ".webp";
+                string filePath = _hostingEnvironment.ContentRootPath + "\\webpImages\\" + referanceDto.ImageName + ".webp";
                 System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(referanceDto.ImageData));
             }
 
@@ -100,39 +100,39 @@ namespace panelApi.Controllers
         {
             string key = "gar";
             var refrences = new List<Referance>();
-            var ur = HttpContext.Request.GetDisplayUrl();
-            if (ur.Contains("panel"))
-            {
-                refrences = await _referanceRepo.GetListWithRelatedEntity();
+            //var ur = HttpContext.Request.GetDisplayUrl();
+            //if (ur.Contains("panel"))
+            //{
+            refrences = await _referanceRepo.GetListWithRelatedEntity();
                 if (refrences.Count < 0)
                 {
                     _logger.LogError("GetAllReferances/Fail__Referanslar bulunamdı.");
                     ModelState.AddModelError("", "Referance not found");
                     return StatusCode(404, ModelState);
                 }
-            }
-            else if (_memoryCache.TryGetValue(key, out refrences))
-            {
-                return Ok(refrences);
+            //}
+            //else if (_memoryCache.TryGetValue(key, out refrences))
+            //{
+            //    return Ok(refrences);
 
-            }
-            else
-            {
-                refrences = await _referanceRepo.GetListWithRelatedEntity();
-                if (refrences.Count < 0)
-                {
-                    _logger.LogError("GetAllReferances/Fail__Referanslar bulunamdı.");
-                    ModelState.AddModelError("", "Referance not found");
-                    return StatusCode(404, ModelState);
-                }
-                var cacheExpiryOptions = new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpiration = DateTime.Now.AddHours(1),
-                    Priority = CacheItemPriority.High,
-                    SlidingExpiration = TimeSpan.FromMinutes(10)
-                };
-                _memoryCache.Set(key, refrences, cacheExpiryOptions);
-            }
+            //}
+            //else
+            //{
+            //    refrences = await _referanceRepo.GetListWithRelatedEntity();
+            //    if (refrences.Count < 0)
+            //    {
+            //        _logger.LogError("GetAllReferances/Fail__Referanslar bulunamdı.");
+            //        ModelState.AddModelError("", "Referance not found");
+            //        return StatusCode(404, ModelState);
+            //    }
+            //    var cacheExpiryOptions = new MemoryCacheEntryOptions
+            //    {
+            //        AbsoluteExpiration = DateTime.Now.AddHours(1),
+            //        Priority = CacheItemPriority.High,
+            //        SlidingExpiration = TimeSpan.FromMinutes(10)
+            //    };
+            //    _memoryCache.Set(key, refrences, cacheExpiryOptions);
+            //}
 
 
             return Ok(refrences);

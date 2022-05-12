@@ -540,7 +540,9 @@ namespace panelApi.Controllers
         [Route("updateProduct")]
         public async Task<IActionResult> UpdateProduct([FromBody] Product product)
         {
-            var orjprod = await _productRepo.Get(a => a.Id == product.Id);
+            try
+            {
+                var orjprod = await _productRepo.Get(a => a.Id == product.Id);
             if (orjprod.Name == null)
             {
                 _logger.LogError($"UpdateProduct__{product.Name} isimli_{product.Id} Id'li Ürün bulunamdı.");
@@ -578,6 +580,12 @@ namespace panelApi.Controllers
 
             _logger.LogWarning($"UpdateProduct/Success__{product.Name} isimli_{product.Id} id'li Ürün güncellendi");
             return NoContent();
+            }
+            catch (Exception e)
+            {
+                return NoContent();
+
+            }
         }
 
         [Authorize]
